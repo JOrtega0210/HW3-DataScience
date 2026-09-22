@@ -1,0 +1,3 @@
+doc_id,num_pages,total_chars,avg_chars_per_page,min_chars_per_page,max_chars_per_page,empty_pages,empty_page_count,reading_order_method
+ley_32069,36,316158,8782.2,948,13087,ninguna,0,"pymupdf page.get_text('text', sort=True): ordena los bloques de texto por posición vertical y horizontal antes de concatenarlos."
+ds_001_2026_ef,16,134755,8422.2,8031,9144,ninguna,0,"pymupdf page.get_text('text', sort=True): ordena los bloques de texto por posición vertical y horizontal antes de concatenarlos."

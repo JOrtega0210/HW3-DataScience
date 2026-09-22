@@ -13,12 +13,16 @@ documents:
   - id: "ley_32069"
     title: "Ley N.° 32069 — Ley General de Contrataciones Públicas"
     version: "original"
-    url: "https://www.gob.pe/institucion/osce/colecciones/45029-ley-n-32069-ley-general-de-contrataciones-publicas"
+    # Separata especial de El Peruano, edición del 24/06/2024 (texto original, 36 páginas).
+    url: "https://busquedas.elperuano.pe/dispositivo/SE/2300373-1"
+    published_date: "2024-06-24"
     raw_filename: "ley_32069.pdf"
   - id: "ds_001_2026_ef"
     title: "Decreto Supremo N.° 001-2026-EF"
     version: "modificatoria"
+    # Modifica el Reglamento de la Ley 32069 (el Reglamento en sí queda fuera del corpus).
     url: "https://busquedas.elperuano.pe/dispositivo/NL/2474920-3"
+    published_date: "2026-01-08"
     raw_filename: "ds_001_2026_ef.pdf"
 
 chunking:

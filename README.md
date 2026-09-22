@@ -49,7 +49,7 @@ _Pendiente — se agregará el enlace aquí una vez grabado (≤12 minutos, regl
 git clone <URL_DEL_REPO>
 cd HW3
 
-# 2. Crear y activar entorno virtual
+# 2. Crear y activar entorno virtual (en la raíz del repo)
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 
@@ -75,7 +75,48 @@ evaluación de Recall@k). Las claves solo son necesarias para:
 
 ## Cómo ejecutar — Tarea 1 (RAG Normativo)
 
-_Pendiente — se documenta al cerrar Fase 1/2 (extracción + índice)._
+### Descarga de las fuentes oficiales
+
+Los PDFs de Ley N.° 32069 y DS N.° 001-2026-EF **no son descargables con `curl`/`requests`
+directo**: `busquedas.elperuano.pe` genera la URL real del archivo (`/api/archivo/file/<token>/...`)
+mediante JavaScript, con un token firmado de corta duración. Pasos para obtenerlos:
+
+1. Abrir en el navegador la URL de `config.yaml` -> `documents[].url` (páginas
+   `dispositivo/SE/...` o `dispositivo/NL/...`).
+2. Click en el botón **PDF** del visor.
+3. Guardar el PDF resultante en `tarea1_rag_normativo/data/raw/` con el nombre indicado
+   en `raw_filename` (`ley_32069.pdf`, `ds_001_2026_ef.pdf`).
+
+Ya se descargaron y están versionados en el repo, así que este paso no es necesario para
+reproducir el resto del pipeline — solo aplica si se quiere volver a descargar desde cero.
+
+### Ejecutar el pipeline offline
+
+```powershell
+cd tarea1_rag_normativo
+python build_index.py --stage extract   # Fase 1: extracción + source check
+```
+
+El comando anterior extrae el texto por página con PyMuPDF (preservando el número de
+página impreso) y genera:
+
+- `data/processed/extraction/<doc_id>.jsonl` — texto crudo por página
+- `data/processed/reports/source_check.csv` — reporte de source check
+
+### Resultado del source check (Fase 1)
+
+| Documento | Páginas | Caracteres totales | Prom. car/página | Mín. car/página | Máx. car/página | Páginas sin texto |
+|---|---|---|---|---|---|---|
+| Ley N.° 32069 | 36 | 316,158 | 8,782.2 | 948 | 13,087 | 0 |
+| DS N.° 001-2026-EF | 16 | 134,755 | 8,422.2 | 8,031 | 9,144 | 0 |
+
+Orden de lectura: se usa `page.get_text("text", sort=True)` de PyMuPDF, que ordena los
+bloques de texto por posición vertical/horizontal antes de concatenarlos — necesario
+porque las ediciones de El Peruano usan layout a una columna con encabezados repetidos.
+
+Hallazgo pendiente para la fase de limpieza: cada página trae pegado el header repetido
+de El Peruano (ej. `"El Peruano / Lunes 24 de junio de 2024  NORMAS LEGALES  5"`), que se
+removerá en la siguiente parte antes de chunking.
 
 ## Cómo ejecutar — Tarea 2 (RAG Radar)
 
