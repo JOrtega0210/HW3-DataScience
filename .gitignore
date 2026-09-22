@@ -1,0 +1,26 @@
+# Entornos
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Secretos
+.env
+
+# Índices vectoriales pesados (se regeneran con build_index.py)
+tarea1_rag_normativo/data/processed/index/
+tarea2_radar/data/processed/index/
+
+# Descargas masivas de Tarea 2 (se regeneran con scripts de adquisición)
+tarea2_radar/data/raw/*.json
+tarea2_radar/data/raw/*.zip
+
+# Logs locales (se conservan ejemplos versionados aparte si se requieren)
+*.log
+
+# OS / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

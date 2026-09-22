@@ -1,0 +1,70 @@
+# Configuración de la Tarea 2 — RAG Radar (contrataciones abiertas OECE).
+
+paths:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  outputs_dir: "data/outputs"
+  index_dir: "data/processed/index"
+  eval_dir: "eval"
+  logs_dir: "logs"
+
+data_source:
+  portal_url: "https://contratacionesabiertas.oece.gob.pe/"
+  downloads_url: "https://contratacionesabiertas.oece.gob.pe/descargas"
+  api_docs_url: "https://contratacionesabiertas.oece.gob.pe/api"
+  # Meses de 2026 a descargar (mínimo 3, formato YYYY-MM). Se completa en Fase 1 de Tarea 2.
+  months: []
+  api:
+    base_url: null
+    throttle_seconds: 1.0
+    max_retries: 3
+    cache_dir: "data/raw/api_cache"
+
+territorial_normalization:
+  # 25 departamentos del Perú (incluye Callao). Se usa para mapear buyer.address -> departamento.
+  departments:
+    - "Amazonas"
+    - "Áncash"
+    - "Apurímac"
+    - "Arequipa"
+    - "Ayacucho"
+    - "Cajamarca"
+    - "Callao"
+    - "Cusco"
+    - "Huancavelica"
+    - "Huánuco"
+    - "Ica"
+    - "Junín"
+    - "La Libertad"
+    - "Lambayeque"
+    - "Lima"
+    - "Loreto"
+    - "Madre de Dios"
+    - "Moquegua"
+    - "Pasco"
+    - "Piura"
+    - "Puno"
+    - "San Martín"
+    - "Tacna"
+    - "Tumbes"
+    - "Ucayali"
+  unmatched_report_file: "data/outputs/unmatched_locations.csv"
+
+embeddings:
+  # Reutiliza el modelo local calibrado en Tarea 1.
+  provider: "local"
+  model_name: "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+  dimension: 768
+
+retrieval:
+  top_k: 5
+  similarity_threshold: 0.55  # placeholder; se recalibra en Fase 3 de Tarea 2 si no transfiere de Tarea 1
+  numeric_filters: ["monto", "fecha", "departamento", "categoria"]  # nunca se embeben, siempre se filtran
+
+risk_indicator:
+  min_processes_per_entity: 5  # umbral mínimo para reportar share de monopostor (justificar en README)
+  top_n_suppliers: 10
+
+logging:
+  acquisition_log_file: "logs/acquisition.log"
+  quality_report_file: "data/outputs/data_quality_report.csv"

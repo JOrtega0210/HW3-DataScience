@@ -1,0 +1,33 @@
+# --- Común ---
+python-dotenv==1.0.1
+pyyaml==6.0.2
+pandas==2.2.3
+numpy==1.26.4
+tqdm==4.66.5
+requests==2.32.3
+tenacity==9.0.0
+
+# --- Extracción de PDFs (Tarea 1, Fase 1) ---
+pymupdf==1.24.11
+
+# --- Embeddings e índice vectorial (Tarea 1, Fase 2; Tarea 2, Fase 3) ---
+sentence-transformers==3.2.1
+faiss-cpu==1.9.0
+
+# --- Comparación de embeddings OpenAI (Tarea 1, Fase 4) ---
+# Requiere OPENAI_EMBEDDINGS_API_KEY en .env
+openai==1.51.2
+
+# --- LLM de generación (Tarea 1, Fase 3) ---
+# Requiere ANTHROPIC_API_KEY en .env
+anthropic==0.36.2
+
+# --- Interfaz (Tarea 1 y 2, Fase 5 / 4) ---
+streamlit==1.39.0
+plotly==5.24.1
+
+# --- Normalización territorial (Tarea 2, Fase 2) ---
+unidecode==1.3.8
+
+# --- Bonus: búsqueda BM25 (opcional) ---
+rank-bm25==0.2.2

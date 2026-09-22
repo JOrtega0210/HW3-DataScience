@@ -1,0 +1,77 @@
+# Configuración de la Tarea 1 — RAG Normativo.
+# Ningún path/threshold/prompt debe quedar hardcodeado en el código: todo se lee de aquí.
+
+paths:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  index_dir: "data/processed/index"
+  eval_dir: "eval"
+  logs_dir: "logs"
+
+documents:
+  # Cada documento define su versión (para el manejo de norma original vs. modificatoria).
+  - id: "ley_32069"
+    title: "Ley N.° 32069 — Ley General de Contrataciones Públicas"
+    version: "original"
+    url: "https://www.gob.pe/institucion/osce/colecciones/45029-ley-n-32069-ley-general-de-contrataciones-publicas"
+    raw_filename: "ley_32069.pdf"
+  - id: "ds_001_2026_ef"
+    title: "Decreto Supremo N.° 001-2026-EF"
+    version: "modificatoria"
+    url: "https://busquedas.elperuano.pe/dispositivo/NL/2474920-3"
+    raw_filename: "ds_001_2026_ef.pdf"
+
+chunking:
+  # Se comparan al menos 2 configuraciones (Fase 2). "active" indica cuál usa build_index.py por defecto.
+  active: "config_a"
+  configs:
+    config_a:
+      chunk_size_tokens: 300
+      overlap_tokens: 50
+    config_b:
+      chunk_size_tokens: 500
+      overlap_tokens: 100
+
+embeddings:
+  active_provider: "local"
+  providers:
+    local:
+      model_name: "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+      dimension: 768
+      max_tokens: 128
+      query_prefix: ""
+      passage_prefix: ""
+    openai:
+      model_name: "text-embedding-3-small"
+      dimension: 1536
+      max_tokens: 8191
+      query_prefix: ""
+      passage_prefix: ""
+
+retrieval:
+  top_k: 5
+  similarity_threshold: 0.55  # placeholder; se recalibra en Fase 3 con sweep sobre eval set
+  scope:
+    included: ["ley_32069", "ds_001_2026_ef"]
+    excluded_note: "El Reglamento de la Ley 32069 no forma parte del corpus indexado."
+
+llm:
+  provider: "anthropic"
+  model_name: "claude-sonnet-5"
+  temperature: 0.0
+  max_tokens: 800
+  system_prompt: >
+    Eres un asistente que responde preguntas sobre contrataciones públicas peruanas
+    usando exclusivamente los fragmentos recuperados. Cita siempre documento y página.
+    Si los fragmentos no contienen la respuesta, indícalo explícitamente en vez de inventar.
+
+pricing:
+  # USD por 1M tokens; se actualiza cuando se confirme el proveedor real usado.
+  llm_input_per_1m_usd: null
+  llm_output_per_1m_usd: null
+  embeddings_local_per_1m_usd: 0.0
+  embeddings_openai_per_1m_usd: null
+
+logging:
+  costs_log_file: "logs/costs.csv"
+  build_log_file: "logs/build_index.log"
