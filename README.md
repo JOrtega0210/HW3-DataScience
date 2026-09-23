@@ -97,7 +97,27 @@ cd tarea1_rag_normativo
 python build_index.py --stage extract   # Fase 1a: extracción + source check
 python build_index.py --stage clean     # Fase 1b: limpieza de headers + reporte de calidad
 python build_index.py --stage chunk     # Fase 2a: chunking (2 configuraciones)
+python build_index.py --stage embed     # Fase 2b: embeddings locales + índice FAISS
 ```
+
+`--stage embed` genera, por cada configuración de chunking, un índice FAISS
+(`IndexFlatIP` sobre embeddings normalizados L2 = similitud coseno) en
+`data/processed/index/<config_name>/` (no versionado en git — se regenera con el
+comando anterior; solo tarda ~7 minutos la primera vez porque descarga el modelo, ~14s
+en corridas posteriores). Es **idempotente y reanudable**: los embeddings ya calculados
+se guardan por `chunk_id`, así que una segunda corrida no reencoda nada (verificado:
+0 nuevos / 890 reusados en `config_a`, 0 nuevos / 788 reusados en `config_b`).
+
+| Config | Chunks totales | Tiempo (1ª corrida, con descarga de modelo) | Tiempo (corrida repetida) |
+|---|---|---|---|
+| `config_a` | 890 | 266.6s | 14.0s |
+| `config_b` | 788 | 138.1s | 0.0s |
+
+Prueba de humo end-to-end (extracción -> limpieza -> chunking -> embedding -> FAISS):
+la consulta *"qué es la subcontratación en las contrataciones públicas"* recuperó como
+primer resultado (score coseno 0.785) el chunk de `ley_32069`, página 2, que contiene
+exactamente la definición legal de "Subcontratación" — confirma que el pipeline
+completo de retrieval funciona antes de conectar el LLM (Fase 3).
 
 `--stage extract` extrae el texto por página con PyMuPDF (preservando el número de
 página impreso) y genera:
@@ -183,7 +203,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 
 - [x] Estructura del repositorio y configuración base
 - [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
-- [x] Tarea 1 — Fase 2a: chunking (falta embeddings e índice)
+- [x] Tarea 1 — Fase 2: chunking, embeddings e índice
 - [ ] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope)
 - [ ] Tarea 1 — Fase 4: evaluación y comparación de embeddings
 - [ ] Tarea 1 — Fase 5: interfaz Streamlit

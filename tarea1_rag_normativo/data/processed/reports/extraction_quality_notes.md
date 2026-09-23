@@ -42,3 +42,12 @@ Complementa `extraction_quality.csv`. Generado a partir de la corrida real de
    para revisión manual antes de chunking: si al construir el índice (Fase 2) se detecta
    contenido de otra norma colándose en un chunk, debe recortarse manualmente en
    `data/processed/clean/ds_001_2026_ef.jsonl`, página 16.
+3. **Interleaving residual de doble columna.** El diseño en dos columnas de El Peruano
+   hace que, en algunas páginas, `get_text(sort=True)` intercale fragmentos cortos de la
+   columna vecina dentro de un párrafo (ej. el título "LEY N.° 32069" en medio de la
+   definición de "Subcontratación", verificado en retrieval de prueba sobre
+   `ley_32069:config_b:p002:c000`). No se intentó resolver con heurísticas de columnas
+   (riesgo de introducir errores peores) porque el impacto observado en la calidad de
+   retrieval fue bajo: la consulta de prueba "qué es la subcontratación" recuperó ese
+   chunk en primer lugar con score 0.785. Queda como limitación aceptada, a revisar en
+   la Fase 4 si el Recall@k de preguntas específicas se ve afectado.

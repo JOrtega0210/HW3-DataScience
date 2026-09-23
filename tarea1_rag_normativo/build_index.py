@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import time
 from dataclasses import asdict
 from pathlib import Path
 
@@ -26,6 +27,7 @@ from src.extraction import (
     load_pages_jsonl,
     save_pages_jsonl,
 )
+from src.indexing import build_or_update_index
 
 
 def load_config(path: Path) -> dict:
@@ -196,6 +198,56 @@ def stage_chunk(config: dict) -> None:
     print(f"[chunk] reporte comparativo guardado en {report_path}")
 
 
+def stage_embed(config: dict) -> None:
+    processed_dir = Path(config["paths"]["processed_dir"])
+    chunks_dir = processed_dir / "chunks"
+    index_root = Path(config["paths"]["index_dir"])
+    reports_dir = processed_dir / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    active_provider = config["embeddings"]["active_provider"]
+    provider_cfg = config["embeddings"]["providers"][active_provider]
+    model_name = provider_cfg["model_name"]
+    passage_prefix = provider_cfg.get("passage_prefix", "")
+
+    summary_rows = []
+    for config_name in config["chunking"]["configs"]:
+        chunks: list[dict] = []
+        for doc in config["documents"]:
+            path = chunks_dir / config_name / f"{doc['id']}.jsonl"
+            if not path.exists():
+                raise FileNotFoundError(f"No se encontró {path}. Corre --stage chunk primero.")
+            with path.open("r", encoding="utf-8") as f:
+                chunks.extend(json.loads(line) for line in f)
+
+        index_dir = index_root / config_name
+        t0 = time.time()
+        stats = build_or_update_index(
+            chunks, index_dir, model_name=model_name, passage_prefix=passage_prefix
+        )
+        elapsed = time.time() - t0
+
+        row = {
+            "config_name": config_name,
+            "total_chunks": stats["total_chunks"],
+            "reused_embeddings": stats["reused_embeddings"],
+            "new_embeddings": stats["new_embeddings"],
+            "seconds": round(elapsed, 2),
+        }
+        summary_rows.append(row)
+        print(
+            f"[embed] {config_name}: {row['new_embeddings']} nuevos, "
+            f"{row['reused_embeddings']} reusados, {row['total_chunks']} total ({elapsed:.1f}s)"
+        )
+
+    report_path = reports_dir / "embedding_build.csv"
+    with report_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(summary_rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(summary_rows)
+    print(f"[embed] reporte guardado en {report_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Pipeline offline de indexación (Tarea 1)")
     parser.add_argument(
@@ -213,7 +265,7 @@ def main() -> None:
     if args.stage in ("chunk", "all"):
         stage_chunk(config)
     if args.stage in ("embed", "all"):
-        print("[embed] pendiente — se implementa en Fase 2 (embeddings e índice)")
+        stage_embed(config)
 
 
 if __name__ == "__main__":
