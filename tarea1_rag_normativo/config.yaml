@@ -27,14 +27,17 @@ documents:
 
 chunking:
   # Se comparan al menos 2 configuraciones (Fase 2). "active" indica cuál usa build_index.py por defecto.
-  active: "config_a"
+  # IMPORTANTE: los tamaños respetan max_seq_length=128 del modelo de embeddings local
+  # (embeddings.providers.local.max_tokens) verificado en sentence_bert_config.json del
+  # modelo -- chunks más grandes se truncarían silenciosamente al generar el embedding.
+  active: "config_b"
   configs:
     config_a:
-      chunk_size_tokens: 300
-      overlap_tokens: 50
+      chunk_size_tokens: 96
+      overlap_tokens: 16
     config_b:
-      chunk_size_tokens: 500
-      overlap_tokens: 100
+      chunk_size_tokens: 120
+      overlap_tokens: 30
 
 embeddings:
   active_provider: "local"

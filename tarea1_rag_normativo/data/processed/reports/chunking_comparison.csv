@@ -1,0 +1,5 @@
+config_name,chunk_size_tokens,overlap_tokens,doc_id,num_chunks,avg_tokens,min_tokens,max_tokens_seen
+config_a,96,16,ley_32069,584,93.8,17,96
+config_a,96,16,ds_001_2026_ef,306,93.9,20,96
+config_b,120,30,ley_32069,516,117.2,31,120
+config_b,120,30,ds_001_2026_ef,272,116.8,31,120

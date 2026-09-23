@@ -11,6 +11,9 @@ tenacity==9.0.0
 pymupdf==1.24.11
 
 # --- Embeddings e índice vectorial (Tarea 1, Fase 2; Tarea 2, Fase 3) ---
+# transformers se usa también solo (sin torch) para el tokenizer real del modelo de
+# embeddings local durante chunking, y verificar límites de tokens antes de indexar.
+transformers==4.44.2
 sentence-transformers==3.2.1
 faiss-cpu==1.9.0
 

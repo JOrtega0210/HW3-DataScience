@@ -96,6 +96,7 @@ reproducir el resto del pipeline — solo aplica si se quiere volver a descargar
 cd tarea1_rag_normativo
 python build_index.py --stage extract   # Fase 1a: extracción + source check
 python build_index.py --stage clean     # Fase 1b: limpieza de headers + reporte de calidad
+python build_index.py --stage chunk     # Fase 2a: chunking (2 configuraciones)
 ```
 
 `--stage extract` extrae el texto por página con PyMuPDF (preservando el número de
@@ -138,6 +139,33 @@ posible "bleed" de contenido de una norma vecina en la última página del DS (d
 distintas comparten la misma página física de la edición impresa) — se dejó marcado para
 revisión manual en vez de recortarlo automáticamente, por seguridad de datos.
 
+### Chunking (Fase 2a)
+
+**Hallazgo clave:** el modelo de embeddings local configurado
+(`sentence-transformers/paraphrase-multilingual-mpnet-base-v2`) tiene
+`max_seq_length = 128` tokens (verificado en su `sentence_bert_config.json` en Hugging
+Face, no solo asumido). Los tamaños de chunk se fijaron **por debajo de ese límite**
+(96 y 120 tokens) para que ningún chunk se trunque silenciosamente al generar su
+embedding; `build_index.py --stage chunk` valida esto en cada corrida y falla explícito
+si una configuración excede `max_tokens`.
+
+El chunking se hace **por página** (nunca cruza el límite de una página) para que la
+metadata de página de cada chunk sea siempre exacta y no ambigua, usando el tokenizer
+real del modelo (offsets exactos, no una aproximación por caracteres) y excluyendo la
+página de portada de la Ley. El chunk ID es determinístico
+(`"{doc_id}:{config_name}:p{página}:c{índice}"`), por lo que re-ejecutar el build
+produce exactamente los mismos IDs y texto (verificado con una segunda corrida).
+
+| Config | chunk_size / overlap (tokens) | Chunks Ley 32069 | Chunks DS 001-2026-EF | Prom. tokens/chunk |
+|---|---|---|---|---|
+| `config_a` | 96 / 16 | 584 | 306 | ~93.8 |
+| `config_b` | 120 / 30 | 516 | 272 | ~117.0 |
+
+Comparación completa en `data/processed/reports/chunking_comparison.csv`. La
+configuración activa por defecto es `config_b` (chunks más grandes, menos fragmentación,
+más contexto por chunk); se compara contra `config_a` en la Fase 4 (evaluación de
+Recall@k) para decidir cuál conservar.
+
 ## Cómo ejecutar — Tarea 2 (RAG Radar)
 
 _Pendiente — se documenta al cerrar Fase 1 (adquisición de datos)._
@@ -155,7 +183,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 
 - [x] Estructura del repositorio y configuración base
 - [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
-- [ ] Tarea 1 — Fase 2: chunking, embeddings e índice
+- [x] Tarea 1 — Fase 2a: chunking (falta embeddings e índice)
 - [ ] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope)
 - [ ] Tarea 1 — Fase 4: evaluación y comparación de embeddings
 - [ ] Tarea 1 — Fase 5: interfaz Streamlit

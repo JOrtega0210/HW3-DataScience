@@ -18,6 +18,7 @@ from pathlib import Path
 
 import yaml
 
+from src.chunking import chunk_document_pages, get_tokenizer
 from src.cleaning import clean_page
 from src.extraction import (
     build_source_check,
@@ -123,6 +124,78 @@ def stage_clean(config: dict) -> None:
     print(f"[clean] reporte de calidad guardado en {report_path}")
 
 
+def stage_chunk(config: dict) -> None:
+    processed_dir = Path(config["paths"]["processed_dir"])
+    clean_dir = processed_dir / "clean"
+    chunks_dir = processed_dir / "chunks"
+    reports_dir = processed_dir / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    active_provider = config["embeddings"]["active_provider"]
+    provider_cfg = config["embeddings"]["providers"][active_provider]
+    model_name = provider_cfg["model_name"]
+    max_tokens = provider_cfg["max_tokens"]
+    tokenizer = get_tokenizer(model_name)
+
+    comparison_rows = []
+    for config_name, chunk_cfg in config["chunking"]["configs"].items():
+        chunk_size = chunk_cfg["chunk_size_tokens"]
+        overlap = chunk_cfg["overlap_tokens"]
+        if chunk_size > max_tokens:
+            raise ValueError(
+                f"chunking.configs.{config_name}.chunk_size_tokens={chunk_size} excede "
+                f"max_tokens={max_tokens} del modelo de embeddings ({model_name}). "
+                "Los chunks se truncarían silenciosamente al generar el embedding."
+            )
+
+        for doc in config["documents"]:
+            clean_path = clean_dir / f"{doc['id']}.jsonl"
+            if not clean_path.exists():
+                raise FileNotFoundError(f"No se encontró {clean_path}. Corre --stage clean primero.")
+            with clean_path.open("r", encoding="utf-8") as f:
+                pages = [json.loads(line) for line in f]
+
+            chunks = chunk_document_pages(
+                doc_id=doc["id"],
+                version=doc["version"],
+                pages=pages,
+                tokenizer=tokenizer,
+                config_name=config_name,
+                chunk_size_tokens=chunk_size,
+                overlap_tokens=overlap,
+            )
+
+            out_dir = chunks_dir / config_name
+            out_dir.mkdir(parents=True, exist_ok=True)
+            with (out_dir / f"{doc['id']}.jsonl").open("w", encoding="utf-8") as f:
+                for c in chunks:
+                    f.write(json.dumps(asdict(c), ensure_ascii=False) + "\n")
+
+            token_counts = [c.token_count for c in chunks]
+            row = {
+                "config_name": config_name,
+                "chunk_size_tokens": chunk_size,
+                "overlap_tokens": overlap,
+                "doc_id": doc["id"],
+                "num_chunks": len(chunks),
+                "avg_tokens": round(sum(token_counts) / len(token_counts), 1) if token_counts else 0,
+                "min_tokens": min(token_counts) if token_counts else 0,
+                "max_tokens_seen": max(token_counts) if token_counts else 0,
+            }
+            comparison_rows.append(row)
+            print(
+                f"[chunk] {config_name}/{doc['id']}: {row['num_chunks']} chunks, "
+                f"{row['avg_tokens']} tokens promedio (min={row['min_tokens']}, max={row['max_tokens_seen']})"
+            )
+
+    report_path = reports_dir / "chunking_comparison.csv"
+    with report_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(comparison_rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(comparison_rows)
+    print(f"[chunk] reporte comparativo guardado en {report_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Pipeline offline de indexación (Tarea 1)")
     parser.add_argument(
@@ -138,7 +211,7 @@ def main() -> None:
     if args.stage in ("clean", "all"):
         stage_clean(config)
     if args.stage in ("chunk", "all"):
-        print("[chunk] pendiente — se implementa en Fase 2 (chunking)")
+        stage_chunk(config)
     if args.stage in ("embed", "all"):
         print("[embed] pendiente — se implementa en Fase 2 (embeddings e índice)")
 
