@@ -332,9 +332,52 @@ caché). Log real de tiempo/requests/tamaños en `logs/acquisition_log.csv` y
 resumen agregado en `data/outputs/acquisition_summary.csv`.
 
 Los ZIPs/JSON crudos (`data/raw/extracted/`, `data/raw/api_cache/`, ~290 MB) no
-se versionan en git (se regeneran con el comando de arriba); sí se versionan los
-datos ya procesados: `data/processed/processes.jsonl` y `.csv` (21,750 filas,
-una por proceso de contratación).
+se versionan en git (se regeneran con el comando de arriba). El dataset
+combinado intermedio (`processes.jsonl`/`.csv`, 21,750 filas) tampoco se
+versiona porque queda superado por el dataset validado de la Fase 2 — ambos se
+regeneran ejecutando `acquire_data.py` seguido de `validate_data.py`.
+
+### Validación de calidad y normalización territorial (Fase 2)
+
+```powershell
+python validate_data.py
+```
+
+Detecta (sin corregir a ciegas) 6 reglas de calidad sobre las 21,750 filas
+combinadas de la Fase 1:
+
+| Regla | Casos | Acción tomada |
+|---|---|---|
+| Registros repetidos por el mismo proceso | **884** (827 grupos) | se conserva el más completo por grupo, resto descartado (auditoría en `duplicates_removed.csv`) |
+| Proceso sin monto | 0 | ninguna |
+| Proceso con monto cero | 3,419 | se conserva (válido en catálogos/convenios); documentado para no inflar promedios sin advertir |
+| Proceso sin descripción | 0 | ninguna |
+| Ubicación que no matchea un departamento | 0 | ninguna (`buyer.address.department` del OCDS ya viene curado por una extensión propia del OECE) |
+| Inconsistencia de encoding/acentos | 0 | ninguna |
+
+**Hallazgo real de duplicados:** se detectaron 827 grupos donde el mismo
+comprador + misma nomenclatura + misma fecha de convocatoria aparecen bajo
+**`ocid` distintos** — verificado en un caso concreto: dos ocids con el mismo
+monto exacto (S/ 6,741,021.80) y mismo título, uno con `numberOfTenderers=null`
+y otro con `numberOfTenderers=25` (evidencia de que SEACE V3 reemitió un id
+interno nuevo para el mismo proceso real en una etapa posterior). Norma
+aplicada: se conserva el registro con más campos poblados (heurística de
+completitud: `numberOfTenderers` no nulo, tiene adjudicación, tiene proveedor
+adjudicado), nunca se combinan/promedian silenciosamente.
+
+**Normalización territorial:** `buyer.address.department` del estándar OCDS
+peruano ya viene generado por una extensión propia (`ocds_department_extension`)
+— de hecho, sobre 21,750 filas reales aparecieron **exactamente 25 valores
+únicos**, los 25 departamentos oficiales, sin variantes de acento/mayúsculas ni
+provincias mezcladas. La normalización (`normalize_department()` en
+`src/validation.py`, comparación insensible a tildes/mayúsculas contra la lista
+de `config.yaml`) igual se implementó y quedó lista para datos menos curados
+(ej. si se agregan fuentes SEACE V2 a futuro), documentada con el reporte
+`unmatched_locations.csv` que se generaría si hubiera algún caso.
+
+Dataset final: `data/processed/processes_validated.jsonl`/`.csv`, **20,866
+filas** (21,750 − 884 duplicados), con columnas nuevas `buyer_department`
+(normalizado) e `is_encoding_issue`.
 
 ### Interfaz Streamlit (Fase 5)
 
@@ -373,7 +416,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold, comparación local vs. OpenAI completa)
 - [x] Tarea 1 — Fase 5: interfaz Streamlit
 - [x] Tarea 2 — Fase 1: adquisición de datos
-- [ ] Tarea 2 — Fase 2: validación y normalización territorial
+- [x] Tarea 2 — Fase 2: validación y normalización territorial
 - [ ] Tarea 2 — Fase 3: RAG híbrido
 - [ ] Tarea 2 — Fase 4: dashboard Streamlit
 - [ ] Tarea 2 — Fase 5: indicador de riesgo monopostor
