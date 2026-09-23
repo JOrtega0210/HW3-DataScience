@@ -12,12 +12,19 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 from dataclasses import asdict
 from pathlib import Path
 
 import yaml
 
-from src.extraction import build_source_check, extract_pdf_pages, save_pages_jsonl
+from src.cleaning import clean_page
+from src.extraction import (
+    build_source_check,
+    extract_pdf_pages,
+    load_pages_jsonl,
+    save_pages_jsonl,
+)
 
 
 def load_config(path: Path) -> dict:
@@ -58,6 +65,64 @@ def stage_extract(config: dict) -> None:
     print(f"[extract] reporte de source check guardado en {report_path}")
 
 
+def stage_clean(config: dict) -> None:
+    processed_dir = Path(config["paths"]["processed_dir"])
+    extraction_dir = processed_dir / "extraction"
+    clean_dir = processed_dir / "clean"
+    reports_dir = processed_dir / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    quality_rows = []
+    for doc in config["documents"]:
+        jsonl_path = extraction_dir / f"{doc['id']}.jsonl"
+        if not jsonl_path.exists():
+            raise FileNotFoundError(f"No se encontró {jsonl_path}. Corre --stage extract primero.")
+        pages = load_pages_jsonl(jsonl_path)
+        results = [clean_page(p) for p in pages]
+
+        clean_dir.mkdir(parents=True, exist_ok=True)
+        with (clean_dir / f"{doc['id']}.jsonl").open("w", encoding="utf-8") as f:
+            for r in results:
+                f.write(json.dumps(asdict(r), ensure_ascii=False) + "\n")
+
+        n_pages = len(results)
+        n_header_removed = sum(1 for r in results if r.header_removed)
+        n_sig_removed = sum(1 for r in results if r.signature_stamp_removed)
+        n_op_codes = sum(r.op_codes_removed for r in results)
+        n_ligatures = sum(r.ligatures_normalized for r in results)
+        cover_pages = [r.page_number for r in results if r.is_cover_page]
+        pages_without_header = [
+            r.page_number for r in results if not r.header_removed and not r.is_cover_page
+        ]
+
+        quality_rows.append(
+            {
+                "doc_id": doc["id"],
+                "num_pages": n_pages,
+                "pages_header_removed": n_header_removed,
+                "pages_without_header_flag": ",".join(map(str, pages_without_header)) or "ninguna",
+                "signature_stamps_removed": n_sig_removed,
+                "op_codes_removed_total": n_op_codes,
+                "ligature_chars_normalized": n_ligatures,
+                "cover_pages_excluded": ",".join(map(str, cover_pages)) or "ninguna",
+            }
+        )
+        print(
+            f"[clean] {doc['id']}: header removido en {n_header_removed}/{n_pages} páginas, "
+            f"{n_ligatures} ligaduras normalizadas, {n_op_codes} códigos OP removidos, "
+            f"{len(cover_pages)} página(s) de portada excluida(s)"
+        )
+        if pages_without_header:
+            print(f"[clean] AVISO {doc['id']}: revisar manualmente páginas {pages_without_header} (sin header detectado y no marcadas como portada)")
+
+    report_path = reports_dir / "extraction_quality.csv"
+    with report_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(quality_rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(quality_rows)
+    print(f"[clean] reporte de calidad guardado en {report_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Pipeline offline de indexación (Tarea 1)")
     parser.add_argument(
@@ -71,7 +136,7 @@ def main() -> None:
     if args.stage in ("extract", "all"):
         stage_extract(config)
     if args.stage in ("clean", "all"):
-        print("[clean] pendiente — se implementa en la siguiente parte (limpieza de headers)")
+        stage_clean(config)
     if args.stage in ("chunk", "all"):
         print("[chunk] pendiente — se implementa en Fase 2 (chunking)")
     if args.stage in ("embed", "all"):

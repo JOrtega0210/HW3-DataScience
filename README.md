@@ -94,14 +94,22 @@ reproducir el resto del pipeline — solo aplica si se quiere volver a descargar
 
 ```powershell
 cd tarea1_rag_normativo
-python build_index.py --stage extract   # Fase 1: extracción + source check
+python build_index.py --stage extract   # Fase 1a: extracción + source check
+python build_index.py --stage clean     # Fase 1b: limpieza de headers + reporte de calidad
 ```
 
-El comando anterior extrae el texto por página con PyMuPDF (preservando el número de
+`--stage extract` extrae el texto por página con PyMuPDF (preservando el número de
 página impreso) y genera:
 
 - `data/processed/extraction/<doc_id>.jsonl` — texto crudo por página
 - `data/processed/reports/source_check.csv` — reporte de source check
+
+`--stage clean` remueve los artefactos de maquetación de El Peruano (header repetido,
+sello de firma digital, códigos de publicación OP, ligaduras tipográficas) y genera:
+
+- `data/processed/clean/<doc_id>.jsonl` — texto limpio por página (con flag `is_cover_page`)
+- `data/processed/reports/extraction_quality.csv` — reporte de calidad por documento
+- `data/processed/reports/extraction_quality_notes.md` — limitaciones conocidas y decisiones
 
 ### Resultado del source check (Fase 1)
 
@@ -114,9 +122,21 @@ Orden de lectura: se usa `page.get_text("text", sort=True)` de PyMuPDF, que orde
 bloques de texto por posición vertical/horizontal antes de concatenarlos — necesario
 porque las ediciones de El Peruano usan layout a una columna con encabezados repetidos.
 
-Hallazgo pendiente para la fase de limpieza: cada página trae pegado el header repetido
-de El Peruano (ej. `"El Peruano / Lunes 24 de junio de 2024  NORMAS LEGALES  5"`), que se
-removerá en la siguiente parte antes de chunking.
+Cada página trae pegado el header repetido de El Peruano (ej. `"El Peruano / Lunes 24 de
+junio de 2024  NORMAS LEGALES  5"`), removido en la etapa de limpieza (ver abajo).
+
+### Resultado de la limpieza (Fase 1)
+
+| Documento | Páginas | Header removido | Sello firma removido | Códigos OP removidos | Ligaduras normalizadas | Portada excluida |
+|---|---|---|---|---|---|---|
+| Ley N.° 32069 | 36 | 35/36 (1 es portada) | 1 | 1 | 411 | página 1 |
+| DS N.° 001-2026-EF | 16 | 16/16 | 1 | 2 | 0 | ninguna |
+
+Limitaciones conocidas documentadas en `extraction_quality_notes.md`: espaciado
+irregular alrededor de ligaduras tipográficas (ej. `ﬁ`) en <0.15% de los caracteres, y un
+posible "bleed" de contenido de una norma vecina en la última página del DS (dos normas
+distintas comparten la misma página física de la edición impresa) — se dejó marcado para
+revisión manual en vez de recortarlo automáticamente, por seguridad de datos.
 
 ## Cómo ejecutar — Tarea 2 (RAG Radar)
 
@@ -134,7 +154,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 ## Checklist de avance
 
 - [x] Estructura del repositorio y configuración base
-- [ ] Tarea 1 — Fase 1: fuentes, extracción y limpieza
+- [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
 - [ ] Tarea 1 — Fase 2: chunking, embeddings e índice
 - [ ] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope)
 - [ ] Tarea 1 — Fase 4: evaluación y comparación de embeddings
