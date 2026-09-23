@@ -283,6 +283,25 @@ Recall@k) para decidir cuál conservar.
 
 _Pendiente — se documenta al cerrar Fase 1 (adquisición de datos)._
 
+### Interfaz Streamlit (Fase 5)
+
+```powershell
+cd tarea1_rag_normativo
+streamlit run app.py
+```
+
+Carga el índice ya construido (nunca lo reconstruye al iniciar). Tres pestañas:
+**Consulta** (pregunta → respuesta + costo + latencia + fragmentos citados con
+página/versión/similitud), **Calidad de datos** (tablas de `source_check.csv` y
+`extraction_quality.csv` de la Fase 1), **Evaluación** (Recall@k, comparación de
+embeddings y sweep de threshold de la Fase 4).
+
+Probada en navegador real (no solo `streamlit run` sin verificar): la pregunta de
+control *"Tengo una empresa pequeña, ¿hasta cuánto me pueden multar...?"* devolvió
+la respuesta correcta citando el Art. 89.3, página 27, con costo real
+USD 0.000185; la pregunta *"¿Cuál es la capital de Francia?"* se abstuvo
+correctamente con costo USD 0.000000 y 0.51s de latencia (sin llamar al LLM).
+
 ## Pipelines
 
 Ver [`docs/pipeline.md`](docs/pipeline.md) para los diagramas offline/online de ambas tareas.
@@ -299,7 +318,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Tarea 1 — Fase 2: chunking, embeddings e índice
 - [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope, LLM conectado: OpenAI gpt-4o-mini)
 - [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold, comparación local vs. OpenAI completa)
-- [ ] Tarea 1 — Fase 5: interfaz Streamlit
+- [x] Tarea 1 — Fase 5: interfaz Streamlit
 - [ ] Tarea 2 — Fase 1: adquisición de datos
 - [ ] Tarea 2 — Fase 2: validación y normalización territorial
 - [ ] Tarea 2 — Fase 3: RAG híbrido
