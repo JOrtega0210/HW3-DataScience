@@ -151,6 +151,45 @@ duplicados en el corpus con dos versiones en conflicto porque el DS modifica el
 documenta explícitamente para no sugerir falsamente que ambos documentos compiten por
 la misma disposición.
 
+### Evaluación y calibración de threshold (Fase 4)
+
+Conjunto de evaluación real en `eval/eval_set.json`: **21 preguntas** (16 in-domain +
+5 out-of-domain), redactadas a partir de contenido verificado de los documentos —
+4 sobre artículos modificados por el DS (≥3 requerido), 5 en tono de pequeño
+empresario (≥5 requerido), 7 preguntas generales sobre la Ley, y 5 fuera de dominio
+(2 totalmente ajenas + 3 "cercanas" al dominio pero fuera de alcance). Ejecutar con:
+
+```powershell
+python eval/run_eval.py   # sin llamar al LLM; solo retrieval
+```
+
+**Recall@k** (`eval/results/recall_summary.csv`):
+
+| Config | Recall@1 | Recall@3 | Recall@5 |
+|---|---|---|---|
+| `config_a` (96 tok) | 0.375 | 0.625 | **0.812** |
+| `config_b` (120 tok, activa) | **0.438** | **0.750** | 0.750 |
+
+**Calibración de threshold** (`eval/results/threshold_sweep.csv`): se subió de
+0.55 (placeholder) a **0.60**, el borde de la meseta donde la abstención incorrecta
+sobre las 16 preguntas in-domain reales sigue en 0%, con el mayor margen posible.
+
+**Hallazgo real (limitación documentada, no oculta):** el threshold por similitud
+separa bien preguntas totalmente ajenas (`"capital de Francia"` sim≈0.22 → se
+abstiene) pero **no separa las 3 preguntas "cercanas al dominio"** (sobre el
+Reglamento excluido, sobre Chile, sobre beneficios tributarios): tienen similitud
+0.70–0.78, **más alta que varias preguntas in-domain reales**. Subir el threshold
+para atraparlas sacrificaría 19–38% de las preguntas legítimas — peor trade-off.
+Por eso el diseño no depende solo del threshold: `scope_note` viaja en *todas* las
+respuestas y el `system_prompt` instruye al LLM a aclarar el alcance — el
+retrieval es la primera línea de defensa, la generación es la segunda. Detalle
+completo en `eval/results/eval_notes.md`.
+
+**Comparación de embeddings (local vs. OpenAI):** la mitad local está completa
+(arriba); la mitad `text-embedding-3-small` queda pendiente de
+`OPENAI_EMBEDDINGS_API_KEY` (ver Credenciales) — tabla parcial en
+`eval/results/eval_notes.md`.
+
 `--stage extract` extrae el texto por página con PyMuPDF (preservando el número de
 página impreso) y genera:
 
@@ -237,7 +276,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
 - [x] Tarea 1 — Fase 2: chunking, embeddings e índice
 - [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope) — sin LLM conectado aún
-- [ ] Tarea 1 — Fase 4: evaluación y comparación de embeddings
+- [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold) — comparación OpenAI pendiente de API key
 - [ ] Tarea 1 — Fase 5: interfaz Streamlit
 - [ ] Tarea 2 — Fase 1: adquisición de datos
 - [ ] Tarea 2 — Fase 2: validación y normalización territorial

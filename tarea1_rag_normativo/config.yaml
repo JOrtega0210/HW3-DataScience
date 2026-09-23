@@ -57,7 +57,11 @@ embeddings:
 
 retrieval:
   top_k: 5
-  similarity_threshold: 0.55  # placeholder; se recalibra en Fase 3 con sweep sobre eval set
+  # Calibrado en Fase 4 con sweep sobre eval_set.json (21 preguntas) para config_b:
+  # 0.60 mantiene 0% de abstención incorrecta en las 16 preguntas in-domain mientras
+  # abstiene correctamente en 2/5 out-of-domain (las 2 totalmente ajenas al dominio).
+  # Ver eval/results/threshold_sweep.csv y README para el detalle y su limitación.
+  similarity_threshold: 0.60
   scope:
     included: ["ley_32069", "ds_001_2026_ef"]
     excluded_note: "El Reglamento de la Ley 32069 no forma parte del corpus indexado."

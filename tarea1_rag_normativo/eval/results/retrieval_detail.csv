@@ -1,0 +1,43 @@
+config_name,question_id,category,question,expected_doc_id,expected_page,top1_doc_id,top1_page,top1_similarity,hit_at_1,hit_at_3,hit_at_5
+config_a,q01,in_domain_modified_by_decree,¿El subcontratista necesita estar inscrito en el RNP para participar en un contrato estandarizado de ingeniería y construcción de uso internacional?,ds_001_2026_ef,9,ley_32069,24,0.7303,False,True,True
+config_a,q02,in_domain_modified_by_decree,¿Hace falta firmar una adenda al contrato para aprobar una prestación adicional de obra bajo el sistema de entrega solo construcción?,ds_001_2026_ef,9,ds_001_2026_ef,8,0.8168,False,True,True
+config_a,q03,in_domain_modified_by_decree,¿Qué título o grado académico mínimo se necesita para certificarse como comprador público ante el OECE?,ds_001_2026_ef,2,ds_001_2026_ef,2,0.7291,True,True,True
+config_a,q04,in_domain_modified_by_decree,¿Cuándo entra en vigor el Decreto Supremo N.° 001-2026-EF?,ds_001_2026_ef,15,ley_32069,36,0.7411,False,False,False
+config_a,q05,in_domain_mype_phrasing,"Tengo una empresa pequeña, ¿hasta cuánto me pueden multar si incumplo un contrato con el Estado?",ley_32069,27,ley_32069,27,0.7037,True,True,True
+config_a,q06,in_domain_mype_phrasing,¿Perú Compras tiene alguna facilidad para que las micro y pequeñas empresas participemos en los catálogos electrónicos?,ley_32069,29,ley_32069,29,0.7277,True,True,True
+config_a,q07,in_domain_mype_phrasing,"Si gano una licitación y subcontrato parte del trabajo con otro proveedor, ¿sigo siendo responsable frente a la entidad del Estado?",ley_32069,2,ley_32069,26,0.7548,False,False,True
+config_a,q08,in_domain_mype_phrasing,¿En qué casos me pueden inhabilitar para siempre y ya no poder contratar nunca más con el Estado?,ley_32069,27,ley_32069,12,0.6651,False,False,True
+config_a,q09,in_domain_mype_phrasing,¿Qué pasa si no pago una multa que me puso el OECE?,ley_32069,27,ley_32069,27,0.6404,True,True,True
+config_a,q10,in_domain_general,¿Cuáles son las tres fases del proceso de contratación pública?,ley_32069,15,ds_001_2026_ef,1,0.7451,False,False,True
+config_a,q11,in_domain_general,¿Qué es una 'compra corporativa' según la Ley General de Contrataciones Públicas?,ley_32069,2,ley_32069,2,0.8141,True,True,True
+config_a,q12,in_domain_general,¿Está permitido dividir una contratación en varias más pequeñas para evitar un procedimiento de selección?,ley_32069,16,ley_32069,3,0.6609,False,False,False
+config_a,q13,in_domain_general,¿Cuáles son los procedimientos de selección competitivos regulados en la ley?,ley_32069,17,ley_32069,16,0.7714,False,True,True
+config_a,q14,in_domain_general,¿En qué situaciones puede el Estado contratar directamente sin competencia entre proveedores?,ley_32069,17,ley_32069,5,0.7481,False,False,False
+config_a,q15,in_domain_general,¿Qué es la estandarización de requerimientos?,ley_32069,15,ley_32069,15,0.7771,True,True,True
+config_a,q16,in_domain_general,¿Cuál es la finalidad de la Ley General de Contrataciones Públicas?,ley_32069,2,ley_32069,4,0.8142,False,True,True
+config_a,q17,out_domain_unrelated,¿Cuál es la capital de Francia?,,,ds_001_2026_ef,16,0.2535,,,
+config_a,q18,out_domain_unrelated,¿Cómo se prepara un ceviche peruano tradicional?,,,ley_32069,8,0.3616,,,
+config_a,q19,out_domain_near,¿Qué dice el Reglamento de la Ley 32069 sobre los plazos del expediente técnico de obra?,,,ds_001_2026_ef,7,0.7698,,,
+config_a,q20,out_domain_near,¿Cómo se regula la contratación pública en Chile?,,,ley_32069,13,0.7304,,,
+config_a,q21,out_domain_near,¿Qué beneficios tributarios obtiene una empresa por contratar con el Estado peruano?,,,ley_32069,14,0.7046,,,
+config_b,q01,in_domain_modified_by_decree,¿El subcontratista necesita estar inscrito en el RNP para participar en un contrato estandarizado de ingeniería y construcción de uso internacional?,ds_001_2026_ef,9,ds_001_2026_ef,13,0.7494,False,True,True
+config_b,q02,in_domain_modified_by_decree,¿Hace falta firmar una adenda al contrato para aprobar una prestación adicional de obra bajo el sistema de entrega solo construcción?,ds_001_2026_ef,9,ds_001_2026_ef,9,0.8035,True,True,True
+config_b,q03,in_domain_modified_by_decree,¿Qué título o grado académico mínimo se necesita para certificarse como comprador público ante el OECE?,ds_001_2026_ef,2,ds_001_2026_ef,2,0.7287,True,True,True
+config_b,q04,in_domain_modified_by_decree,¿Cuándo entra en vigor el Decreto Supremo N.° 001-2026-EF?,ds_001_2026_ef,15,ds_001_2026_ef,1,0.7328,False,False,False
+config_b,q05,in_domain_mype_phrasing,"Tengo una empresa pequeña, ¿hasta cuánto me pueden multar si incumplo un contrato con el Estado?",ley_32069,27,ley_32069,27,0.6795,True,True,True
+config_b,q06,in_domain_mype_phrasing,¿Perú Compras tiene alguna facilidad para que las micro y pequeñas empresas participemos en los catálogos electrónicos?,ley_32069,29,ley_32069,15,0.7057,False,True,True
+config_b,q07,in_domain_mype_phrasing,"Si gano una licitación y subcontrato parte del trabajo con otro proveedor, ¿sigo siendo responsable frente a la entidad del Estado?",ley_32069,2,ley_32069,18,0.7559,False,True,True
+config_b,q08,in_domain_mype_phrasing,¿En qué casos me pueden inhabilitar para siempre y ya no poder contratar nunca más con el Estado?,ley_32069,27,ley_32069,11,0.6228,False,True,True
+config_b,q09,in_domain_mype_phrasing,¿Qué pasa si no pago una multa que me puso el OECE?,ley_32069,27,ley_32069,27,0.643,True,True,True
+config_b,q10,in_domain_general,¿Cuáles son las tres fases del proceso de contratación pública?,ley_32069,15,ley_32069,15,0.7452,True,True,True
+config_b,q11,in_domain_general,¿Qué es una 'compra corporativa' según la Ley General de Contrataciones Públicas?,ley_32069,2,ley_32069,14,0.743,False,True,True
+config_b,q12,in_domain_general,¿Está permitido dividir una contratación en varias más pequeñas para evitar un procedimiento de selección?,ley_32069,16,ley_32069,6,0.6363,False,False,False
+config_b,q13,in_domain_general,¿Cuáles son los procedimientos de selección competitivos regulados en la ley?,ley_32069,17,ley_32069,17,0.7926,True,True,True
+config_b,q14,in_domain_general,¿En qué situaciones puede el Estado contratar directamente sin competencia entre proveedores?,ley_32069,17,ley_32069,5,0.7163,False,False,False
+config_b,q15,in_domain_general,¿Qué es la estandarización de requerimientos?,ley_32069,15,ley_32069,15,0.7794,True,True,True
+config_b,q16,in_domain_general,¿Cuál es la finalidad de la Ley General de Contrataciones Públicas?,ley_32069,2,ley_32069,4,0.8053,False,False,False
+config_b,q17,out_domain_unrelated,¿Cuál es la capital de Francia?,,,ds_001_2026_ef,16,0.2247,,,
+config_b,q18,out_domain_unrelated,¿Cómo se prepara un ceviche peruano tradicional?,,,ley_32069,8,0.3787,,,
+config_b,q19,out_domain_near,¿Qué dice el Reglamento de la Ley 32069 sobre los plazos del expediente técnico de obra?,,,ds_001_2026_ef,7,0.7783,,,
+config_b,q20,out_domain_near,¿Cómo se regula la contratación pública en Chile?,,,ley_32069,12,0.7432,,,
+config_b,q21,out_domain_near,¿Qué beneficios tributarios obtiene una empresa por contratar con el Estado peruano?,,,ley_32069,13,0.7064,,,

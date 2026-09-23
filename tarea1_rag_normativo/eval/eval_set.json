@@ -1,0 +1,170 @@
+[
+  {
+    "id": "q01",
+    "category": "in_domain_modified_by_decree",
+    "question": "¿El subcontratista necesita estar inscrito en el RNP para participar en un contrato estandarizado de ingeniería y construcción de uso internacional?",
+    "expected_doc_id": "ds_001_2026_ef",
+    "expected_page": 9,
+    "notes": "Art. 218.4 del Reglamento, modificado por el DS 001-2026-EF."
+  },
+  {
+    "id": "q02",
+    "category": "in_domain_modified_by_decree",
+    "question": "¿Hace falta firmar una adenda al contrato para aprobar una prestación adicional de obra bajo el sistema de entrega solo construcción?",
+    "expected_doc_id": "ds_001_2026_ef",
+    "expected_page": 9,
+    "notes": "Art. 194.3 del Reglamento, modificado por el DS 001-2026-EF."
+  },
+  {
+    "id": "q03",
+    "category": "in_domain_modified_by_decree",
+    "question": "¿Qué título o grado académico mínimo se necesita para certificarse como comprador público ante el OECE?",
+    "expected_doc_id": "ds_001_2026_ef",
+    "expected_page": 2,
+    "notes": "Art. 16.1 del Reglamento, modificado por el DS 001-2026-EF."
+  },
+  {
+    "id": "q04",
+    "category": "in_domain_modified_by_decree",
+    "question": "¿Cuándo entra en vigor el Decreto Supremo N.° 001-2026-EF?",
+    "expected_doc_id": "ds_001_2026_ef",
+    "expected_page": 15,
+    "notes": "Disposición Complementaria Final Única del propio DS."
+  },
+  {
+    "id": "q05",
+    "category": "in_domain_mype_phrasing",
+    "question": "Tengo una empresa pequeña, ¿hasta cuánto me pueden multar si incumplo un contrato con el Estado?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 27,
+    "notes": "Art. 89.3: tope de multa del 8% para MYPE."
+  },
+  {
+    "id": "q06",
+    "category": "in_domain_mype_phrasing",
+    "question": "¿Perú Compras tiene alguna facilidad para que las micro y pequeñas empresas participemos en los catálogos electrónicos?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 29,
+    "notes": "Segunda Disposición Complementaria Final, punto 2."
+  },
+  {
+    "id": "q07",
+    "category": "in_domain_mype_phrasing",
+    "question": "Si gano una licitación y subcontrato parte del trabajo con otro proveedor, ¿sigo siendo responsable frente a la entidad del Estado?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 2,
+    "notes": "Art. 4.b, definición de Subcontratación."
+  },
+  {
+    "id": "q08",
+    "category": "in_domain_mype_phrasing",
+    "question": "¿En qué casos me pueden inhabilitar para siempre y ya no poder contratar nunca más con el Estado?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 27,
+    "notes": "Art. 91, inhabilitación definitiva."
+  },
+  {
+    "id": "q09",
+    "category": "in_domain_mype_phrasing",
+    "question": "¿Qué pasa si no pago una multa que me puso el OECE?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 27,
+    "notes": "Art. 89.5, ejecución coactiva por falta de pago."
+  },
+  {
+    "id": "q10",
+    "category": "in_domain_general",
+    "question": "¿Cuáles son las tres fases del proceso de contratación pública?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 15,
+    "notes": "Art. 45: actuaciones preparatorias, selección, ejecución contractual."
+  },
+  {
+    "id": "q11",
+    "category": "in_domain_general",
+    "question": "¿Qué es una 'compra corporativa' según la Ley General de Contrataciones Públicas?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 2,
+    "notes": "Art. 4.c."
+  },
+  {
+    "id": "q12",
+    "category": "in_domain_general",
+    "question": "¿Está permitido dividir una contratación en varias más pequeñas para evitar un procedimiento de selección?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 16,
+    "notes": "Art. 50.1, prohibición de fraccionamiento."
+  },
+  {
+    "id": "q13",
+    "category": "in_domain_general",
+    "question": "¿Cuáles son los procedimientos de selección competitivos regulados en la ley?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 17,
+    "notes": "Art. 54.1: licitación pública y concurso público."
+  },
+  {
+    "id": "q14",
+    "category": "in_domain_general",
+    "question": "¿En qué situaciones puede el Estado contratar directamente sin competencia entre proveedores?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 17,
+    "notes": "Art. 55.1, contratación directa."
+  },
+  {
+    "id": "q15",
+    "category": "in_domain_general",
+    "question": "¿Qué es la estandarización de requerimientos?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 15,
+    "notes": "Art. 42.1."
+  },
+  {
+    "id": "q16",
+    "category": "in_domain_general",
+    "question": "¿Cuál es la finalidad de la Ley General de Contrataciones Públicas?",
+    "expected_doc_id": "ley_32069",
+    "expected_page": 2,
+    "notes": "Art. 2."
+  },
+  {
+    "id": "q17",
+    "category": "out_domain_unrelated",
+    "question": "¿Cuál es la capital de Francia?",
+    "expected_doc_id": null,
+    "expected_page": null,
+    "notes": "Totalmente fuera de dominio."
+  },
+  {
+    "id": "q18",
+    "category": "out_domain_unrelated",
+    "question": "¿Cómo se prepara un ceviche peruano tradicional?",
+    "expected_doc_id": null,
+    "expected_page": null,
+    "notes": "Totalmente fuera de dominio."
+  },
+  {
+    "id": "q19",
+    "category": "out_domain_near",
+    "question": "¿Qué dice el Reglamento de la Ley 32069 sobre los plazos del expediente técnico de obra?",
+    "expected_doc_id": null,
+    "expected_page": null,
+    "notes": "Cercana al dominio pero pregunta por el Reglamento, explícitamente excluido del corpus."
+  },
+  {
+    "id": "q20",
+    "category": "out_domain_near",
+    "question": "¿Cómo se regula la contratación pública en Chile?",
+    "expected_doc_id": null,
+    "expected_page": null,
+    "notes": "Cercana al dominio (contrataciones públicas) pero jurisdicción fuera del corpus."
+  },
+  {
+    "id": "q21",
+    "category": "out_domain_near",
+    "question": "¿Qué beneficios tributarios obtiene una empresa por contratar con el Estado peruano?",
+    "expected_doc_id": null,
+    "expected_page": null,
+    "notes": "Cercana al dominio pero es materia tributaria, no regulada por la Ley 32069."
+  }
+]
