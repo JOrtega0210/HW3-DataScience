@@ -119,6 +119,38 @@ primer resultado (score coseno 0.785) el chunk de `ley_32069`, página 2, que co
 exactamente la definición legal de "Subcontratación" — confirma que el pipeline
 completo de retrieval funciona antes de conectar el LLM (Fase 3).
 
+### Motor RAG (Fase 3)
+
+`src/engine.py` expone una única función pública, `answer_question(query, config)`,
+sin ninguna dependencia de UI (verificado: importar `src.engine` no carga Streamlit).
+Encapsula retrieval + abstención por threshold + citas + nota de alcance + logging de
+costo; la generación con LLM está enchufada pero sin proveedor real todavía (ver
+Credenciales) — devuelve un `llm_error` estructurado en vez de fallar.
+
+Prueba con 3 preguntas de control:
+
+| Pregunta | Resultado |
+|---|---|
+| "¿Qué es la subcontratación...?" (in-domain) | No se abstiene, recupera `ley_32069` p.2, sim=0.785 |
+| "¿Cuál es la capital de Francia?" (out-of-domain) | **Se abstiene** (sim=0.232 < threshold 0.55) |
+| "¿Qué dice el reglamento sobre el procedimiento de selección?" | No se abstiene, recupera `ley_32069` p.36, sim=0.751 |
+
+La tercera pregunta es un hallazgo real relevante para el manejo de alcance: el usuario
+pregunta por el **Reglamento** (explícitamente fuera del corpus), pero el retrieval
+encuentra contenido semánticamente similar en la **Ley** (que sí menciona
+procedimientos de selección) y no se abstiene. Por diseño, `scope_note` viaja en
+*todas* las respuestas (abstenidas o no) precisamente para este caso: cuando se
+conecte el LLM (`system_prompt` en `config.yaml`), debe aclarar explícitamente que la
+respuesta viene de la Ley y no del Reglamento. El threshold actual (0.55, placeholder)
+se recalibrará con un sweep sobre el conjunto de evaluación en la Fase 4.
+
+Manejo de versiones: cada fragmento citado incluye `version` (`"original"` para la Ley,
+`"modificatoria"` para el DS) tomado de la metadata del documento — no hay artículos
+duplicados en el corpus con dos versiones en conflicto porque el DS modifica el
+*Reglamento* (fuera de alcance), no el texto de la Ley indexado; esta distinción se
+documenta explícitamente para no sugerir falsamente que ambos documentos compiten por
+la misma disposición.
+
 `--stage extract` extrae el texto por página con PyMuPDF (preservando el número de
 página impreso) y genera:
 
@@ -204,7 +236,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Estructura del repositorio y configuración base
 - [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
 - [x] Tarea 1 — Fase 2: chunking, embeddings e índice
-- [ ] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope)
+- [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope) — sin LLM conectado aún
 - [ ] Tarea 1 — Fase 4: evaluación y comparación de embeddings
 - [ ] Tarea 1 — Fase 5: interfaz Streamlit
 - [ ] Tarea 2 — Fase 1: adquisición de datos
