@@ -12,9 +12,15 @@ __pycache__/
 tarea1_rag_normativo/data/processed/index/
 tarea2_radar/data/processed/index/
 
-# Descargas masivas de Tarea 2 (se regeneran con scripts de adquisición)
+# Descargas masivas y caché de API de Tarea 2 (se regeneran con acquire_data.py)
 tarea2_radar/data/raw/*.json
 tarea2_radar/data/raw/*.zip
+tarea2_radar/data/raw/extracted/
+tarea2_radar/data/raw/api_cache/
+
+# Intermedios de adquisición de Tarea 2 (processes.jsonl/.csv combinados sí se versionan)
+tarea2_radar/data/processed/processes_bulk.jsonl
+tarea2_radar/data/processed/processes_recent.jsonl
 
 # Logs locales (se conservan ejemplos versionados aparte si se requieren)
 *.log

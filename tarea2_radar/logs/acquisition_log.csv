@@ -1,0 +1,140 @@
+timestamp,action,url,status_code,bytes_downloaded,duration_seconds,note
+2026-09-22T22:32:37,download_bulk_month,https://contratacionesabiertas.oece.gob.pe/api/v1/file/seace_v3/json/2026/06,200,11200745,12.514,
+2026-09-22T22:32:51,download_bulk_month,https://contratacionesabiertas.oece.gob.pe/api/v1/file/seace_v3/json/2026/07,200,10083643,11.507,
+2026-09-22T22:33:04,download_bulk_month,https://contratacionesabiertas.oece.gob.pe/api/v1/file/seace_v3/json/2026/08,200,8444002,9.738,
+2026-09-22T22:33:13,download_bulk_month,https://contratacionesabiertas.oece.gob.pe/api/v1/file/seace_v3/json/2026/06,None,0,0.000,ya existe en data\raw\extracted\2026-06; se omite descarga
+2026-09-22T22:33:15,download_bulk_month,https://contratacionesabiertas.oece.gob.pe/api/v1/file/seace_v3/json/2026/07,None,0,0.000,ya existe en data\raw\extracted\2026-07; se omite descarga
+2026-09-22T22:33:17,download_bulk_month,https://contratacionesabiertas.oece.gob.pe/api/v1/file/seace_v3/json/2026/08,None,0,0.000,ya existe en data\raw\extracted\2026-08; se omite descarga
+2026-09-22T22:33:32,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100,200,78060,0.789,intento 1
+2026-09-22T22:34:36,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100,200,78060,0.544,pagina 0; intento 1
+2026-09-22T22:34:37,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=2,200,74114,0.536,pagina 1; intento 1
+2026-09-22T22:34:39,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=3,200,72517,0.548,pagina 2; intento 1
+2026-09-22T22:34:40,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=4,200,76919,0.537,pagina 3; intento 1
+2026-09-22T22:34:42,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=5,200,78362,0.564,pagina 4; intento 1
+2026-09-22T22:34:43,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=6,200,74801,0.577,pagina 5; intento 1
+2026-09-22T22:34:45,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=7,200,72966,0.575,pagina 6; intento 1
+2026-09-22T22:34:47,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=8,200,75224,0.546,pagina 7; intento 1
+2026-09-22T22:34:48,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=9,200,76586,0.544,pagina 8; intento 1
+2026-09-22T22:34:50,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=10,200,76685,0.548,pagina 9; intento 1
+2026-09-22T22:34:51,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=11,200,79030,0.570,pagina 10; intento 1
+2026-09-22T22:34:53,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=12,200,78578,0.569,pagina 11; intento 1
+2026-09-22T22:34:54,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=13,200,76552,0.547,pagina 12; intento 1
+2026-09-22T22:34:56,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=14,200,77580,0.549,pagina 13; intento 1
+2026-09-22T22:34:58,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=15,200,83418,0.630,pagina 14; intento 1
+2026-09-22T22:35:00,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=16,200,76426,0.782,pagina 15; intento 1
+2026-09-22T22:35:01,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=17,200,82779,0.590,pagina 16; intento 1
+2026-09-22T22:35:03,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=18,200,78763,0.616,pagina 17; intento 1
+2026-09-22T22:35:04,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=19,200,83188,0.542,pagina 18; intento 1
+2026-09-22T22:35:06,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=20,200,83126,0.568,pagina 19; intento 1
+2026-09-22T22:35:08,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=21,200,81566,0.642,pagina 20; intento 1
+2026-09-22T22:35:09,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=22,200,83566,0.610,pagina 21; intento 1
+2026-09-22T22:35:11,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=23,200,86080,0.843,pagina 22; intento 1
+2026-09-22T22:35:13,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=24,200,92053,0.595,pagina 23; intento 1
+2026-09-22T22:35:14,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=25,200,98257,0.677,pagina 24; intento 1
+2026-09-22T22:35:16,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=26,200,76923,0.556,pagina 25; intento 1
+2026-09-22T22:35:18,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=27,200,85432,0.542,pagina 26; intento 1
+2026-09-22T22:35:19,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=28,200,84900,0.677,pagina 27; intento 1
+2026-09-22T22:35:21,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=29,200,82399,0.626,pagina 28; intento 1
+2026-09-22T22:35:22,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=30,200,86945,0.572,pagina 29; intento 1
+2026-09-22T22:35:24,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=31,200,89476,0.549,pagina 30; intento 1
+2026-09-22T22:35:26,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=32,200,83693,0.584,pagina 31; intento 1
+2026-09-22T22:35:27,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=33,200,90043,0.662,pagina 32; intento 1
+2026-09-22T22:35:29,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=34,200,89490,0.583,pagina 33; intento 1
+2026-09-22T22:35:30,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=35,200,89380,0.623,pagina 34; intento 1
+2026-09-22T22:35:32,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=36,200,87401,0.624,pagina 35; intento 1
+2026-09-22T22:35:34,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=37,200,87369,0.638,pagina 36; intento 1
+2026-09-22T22:35:35,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=38,200,91812,0.671,pagina 37; intento 1
+2026-09-22T22:35:37,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=39,200,85673,0.664,pagina 38; intento 1
+2026-09-22T22:35:39,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=40,200,88360,0.548,pagina 39; intento 1
+2026-09-22T22:35:40,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=41,200,126078,0.646,pagina 40; intento 1
+2026-09-22T22:35:42,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=42,200,89203,0.717,pagina 41; intento 1
+2026-09-22T22:35:44,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=43,200,89876,0.561,pagina 42; intento 1
+2026-09-22T22:35:45,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=44,200,99196,0.659,pagina 43; intento 1
+2026-09-22T22:35:47,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=45,200,105228,0.661,pagina 44; intento 1
+2026-09-22T22:35:49,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=46,200,89924,0.581,pagina 45; intento 1
+2026-09-22T22:35:50,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=47,200,96977,0.684,pagina 46; intento 1
+2026-09-22T22:35:52,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=48,200,101305,0.665,pagina 47; intento 1
+2026-09-22T22:35:54,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=49,200,98499,0.644,pagina 48; intento 1
+2026-09-22T22:35:55,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=50,200,96640,0.680,pagina 49; intento 1
+2026-09-22T22:35:57,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=51,200,99682,0.635,pagina 50; intento 1
+2026-09-22T22:35:59,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=52,200,95990,0.560,pagina 51; intento 1
+2026-09-22T22:36:00,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=53,200,104987,0.648,pagina 52; intento 1
+2026-09-22T22:36:02,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=54,200,123266,0.640,pagina 53; intento 1
+2026-09-22T22:36:03,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=55,200,97373,0.667,pagina 54; intento 1
+2026-09-22T22:36:05,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=56,200,97705,0.680,pagina 55; intento 1
+2026-09-22T22:36:07,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=57,200,96922,0.636,pagina 56; intento 1
+2026-09-22T22:36:08,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=58,200,97444,0.649,pagina 57; intento 1
+2026-09-22T22:36:10,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=59,200,95775,0.652,pagina 58; intento 1
+2026-09-22T22:36:12,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=60,200,117960,0.627,pagina 59; intento 1
+2026-09-22T22:36:14,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=61,200,128647,0.657,pagina 60; intento 1
+2026-09-22T22:36:15,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=62,200,98148,0.629,pagina 61; intento 1
+2026-09-22T22:36:17,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=63,200,118405,0.680,pagina 62; intento 1
+2026-09-22T22:36:18,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=64,200,91049,0.646,pagina 63; intento 1
+2026-09-22T22:36:20,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=65,200,84390,0.649,pagina 64; intento 1
+2026-09-22T22:36:22,fetch_recent_updates,https://contratacionesabiertas.oece.gob.pe/api/v1/records?startDate=2026-09-15&endDate=2026-09-22&sourceId=seace_v3&from=0&size=100&page=66,200,82708,0.592,pagina 65; intento 1
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page0.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page1.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page2.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page3.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page4.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page5.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page6.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page7.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page8.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page9.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page10.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page11.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page12.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page13.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page14.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page15.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page16.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page17.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page18.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page19.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page20.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page21.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page22.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page23.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page24.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page25.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page26.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page27.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page28.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page29.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page30.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page31.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page32.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page33.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page34.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page35.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page36.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page37.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page38.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page39.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page40.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page41.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page42.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page43.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page44.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page45.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page46.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page47.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page48.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page49.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page50.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page51.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page52.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page53.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page54.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page55.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page56.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page57.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page58.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page59.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:31,fetch_recent_updates_cached,2026-09-15_2026-09-22_page60.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:32,fetch_recent_updates_cached,2026-09-15_2026-09-22_page61.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:32,fetch_recent_updates_cached,2026-09-15_2026-09-22_page62.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:32,fetch_recent_updates_cached,2026-09-15_2026-09-22_page63.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:32,fetch_recent_updates_cached,2026-09-15_2026-09-22_page64.json,None,0,0.000,leído de caché; sin request a la API
+2026-09-22T22:36:32,fetch_recent_updates_cached,2026-09-15_2026-09-22_page65.json,None,0,0.000,leído de caché; sin request a la API

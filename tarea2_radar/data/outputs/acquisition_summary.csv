@@ -1,0 +1,4 @@
+action,requests,bytes_downloaded,duration_seconds
+download_bulk_month,6,29728390,33.759
+fetch_recent_updates,67,5997929,41.502
+fetch_recent_updates_cached,66,0,0.0

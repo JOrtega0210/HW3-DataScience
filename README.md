@@ -281,7 +281,60 @@ Recall@k) para decidir cuál conservar.
 
 ## Cómo ejecutar — Tarea 2 (RAG Radar)
 
-_Pendiente — se documenta al cerrar Fase 1 (adquisición de datos)._
+### Adquisición de datos (Fase 1)
+
+```powershell
+cd tarea2_radar
+python acquire_data.py --stage bulk     # descarga masiva: 3 meses de 2026
+python acquire_data.py --stage recent   # API de actualizaciones recientes (últimos 7 días)
+python acquire_data.py --stage combine  # une ambos en una fila por proceso (por ocid)
+python acquire_data.py --stage report   # resumen de tiempo/requests/tamaños
+# o los 4 juntos:
+python acquire_data.py --stage all
+```
+
+**Fuente real:** portal OECE (`contratacionesabiertas.oece.gob.pe`), estándar OCDS.
+Verificado con `curl` antes de programar nada:
+
+- **Descarga masiva** (`GET /api/v1/file/{source}/{type}/{year}/{month}`): sin
+  autenticación, a diferencia de El Peruano (Tarea 1). Se descargaron 3 meses
+  reales: **2026-06, 2026-07, 2026-08** (~30 MB comprimidos en total).
+- **API de actualizaciones recientes** (`GET /api/v1/records?startDate=...&endDate=...`):
+  filtra server-side por fecha de convocatoria (confirmado con curl comparando
+  resultados con y sin el filtro). Se usa para traer los últimos 7 días sin
+  esperar a que se publique el próximo archivo mensual.
+- **Modelo OCDS**: cada `record` del `recordPackage` ya es la vista *compilada*
+  (`compiledRelease`) de todas las `releases` (eventos: planificación,
+  convocatoria, adjudicación...) de un mismo `ocid` — por eso se parte de
+  `record.compiledRelease` en vez de reconstruirlo a mano desde `releases`. El
+  `ocid` es el identificador único del proceso de contratación completo.
+
+**Hallazgo real (bug evitado):** la API **ignora el parámetro `size`** — siempre
+pagina de a 20 resultados sin importar qué tamaño de página se pida. Cortar la
+paginación con `len(records) < size_pedido` truncaba en silencio el 98.5% de los
+resultados (20 de 1,309 reales en la ventana de 7 días). Se corrigió siguiendo
+`links.next` tal como lo devuelve la API en cada página, en vez de reconstruir el
+offset manualmente. Verificado con curl antes y después del fix.
+
+**Resultados reales:**
+
+| Fuente | Procesos | Requests | Datos transferidos | Tiempo |
+|---|---|---|---|---|
+| Descarga masiva (3 meses) | 20,441 | 6 | 29.7 MB | 33.8 s |
+| API actualizaciones recientes (7 días) | 1,309 | 67 (+66 desde caché en la 2ª corrida) | 6.0 MB | 41.5 s |
+| **Combinado (una fila por `ocid`)** | **21,750** | | | |
+
+Ambos mecanismos son **re-ejecutables sin duplicar**: `--stage bulk` no vuelve a
+descargar un mes ya extraído en `data/raw/extracted/`; `--stage recent` cachea
+cada página de la API en `data/raw/api_cache/` y una segunda corrida no genera
+ningún request nuevo (verificado: 0 requests reales, 66/66 páginas leídas de
+caché). Log real de tiempo/requests/tamaños en `logs/acquisition_log.csv` y
+resumen agregado en `data/outputs/acquisition_summary.csv`.
+
+Los ZIPs/JSON crudos (`data/raw/extracted/`, `data/raw/api_cache/`, ~290 MB) no
+se versionan en git (se regeneran con el comando de arriba); sí se versionan los
+datos ya procesados: `data/processed/processes.jsonl` y `.csv` (21,750 filas,
+una por proceso de contratación).
 
 ### Interfaz Streamlit (Fase 5)
 
@@ -319,7 +372,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope, LLM conectado: OpenAI gpt-4o-mini)
 - [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold, comparación local vs. OpenAI completa)
 - [x] Tarea 1 — Fase 5: interfaz Streamlit
-- [ ] Tarea 2 — Fase 1: adquisición de datos
+- [x] Tarea 2 — Fase 1: adquisición de datos
 - [ ] Tarea 2 — Fase 2: validación y normalización territorial
 - [ ] Tarea 2 — Fase 3: RAG híbrido
 - [ ] Tarea 2 — Fase 4: dashboard Streamlit

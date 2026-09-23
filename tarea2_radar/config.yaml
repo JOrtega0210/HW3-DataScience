@@ -12,12 +12,27 @@ data_source:
   portal_url: "https://contratacionesabiertas.oece.gob.pe/"
   downloads_url: "https://contratacionesabiertas.oece.gob.pe/descargas"
   api_docs_url: "https://contratacionesabiertas.oece.gob.pe/api"
-  # Meses de 2026 a descargar (mínimo 3, formato YYYY-MM). Se completa en Fase 1 de Tarea 2.
-  months: []
+  # Descargas masivas: GET /api/v1/file/{source}/{type}/{year}/{month} -> zip con JSON
+  # (recordPackage: releases release/record del estándar OCDS). Verificado con curl:
+  # no requiere autenticación ni token firmado, a diferencia de El Peruano (Tarea 1).
+  bulk_file_url_template: "https://contratacionesabiertas.oece.gob.pe/api/v1/file/{source}/{type}/{year}/{month}"
+  source_id: "seace_v3"
+  file_type: "json"
+  # Meses de 2026 a descargar (mínimo 3, formato YYYY-MM).
+  months: ["2026-06", "2026-07", "2026-08"]
   api:
-    base_url: null
+    # Endpoint real para "actualizaciones recientes": filtra por startDate/endDate
+    # (fecha de convocatoria, YYYY-MM-DD) sobre el releasePackage/recordPackage.
+    # Verificado con curl: startDate/endDate SÍ filtran server-side; parámetros como
+    # "sort"/"orderBy" NO existen (se probaron y la API los ignora silenciosamente).
+    base_url: "https://contratacionesabiertas.oece.gob.pe/api/v1"
+    records_endpoint: "/records"
+    records_after_endpoint: "/recordsAfter"  # cursor searchAfter, para >10,000 resultados
+    max_page_size: 100
+    recent_window_days: 7
     throttle_seconds: 1.0
     max_retries: 3
+    timeout_seconds: 30
     cache_dir: "data/raw/api_cache"
 
 territorial_normalization:
@@ -66,5 +81,5 @@ risk_indicator:
   top_n_suppliers: 10
 
 logging:
-  acquisition_log_file: "logs/acquisition.log"
+  acquisition_log_file: "logs/acquisition_log.csv"
   quality_report_file: "data/outputs/data_quality_report.csv"
