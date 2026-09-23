@@ -65,6 +65,41 @@ en el retrieval. Subir el threshold para atrapar estos 3 casos (a partir de
 producto (preferible no abstenerse una pregunta real, apoyándose en el LLM para
 aclarar el alcance, que negarle la respuesta a un usuario legítimo).
 
+## Hallazgo de prueba en vivo: Recall@k por página no garantiza el chunk correcto
+
+Detectado al probar la app real (no solo el eval automatizado): la pregunta
+*"¿Cuáles son los procedimientos de selección competitivos regulados en la ley?"*
+recupera correctamente la **página** 17 como top-1 (sim≈0.79, coincide con lo que
+mide `run_eval.py`), pero el **chunk** específico recuperado
+(`ley_32069:config_b:p017:c004`) no contiene la enumeración real ("a) licitación
+pública... b) concurso público", que sí está en los chunks `c000` y `c003` de esa
+misma página). El motivo: la página 17 se partió en 14 chunks solapados, y varios
+repiten la frase "procedimiento de selección competitivo" en contextos distintos
+(la definición real en el Art. 54.1, y una excepción del Art. 55 que la reutiliza);
+el chunk de la excepción anota más densamente esa frase y por eso puntúa más alto
+por similitud coseno, aunque no responda la pregunta.
+
+Verificado que no es un problema de tildes (se probó la misma consulta con y sin
+acentos: ambas recuperan exactamente el mismo top-1 chunk con similitud casi
+idéntica, 0.7926 vs 0.7939).
+
+**Consecuencia observada:** el LLM, siguiendo el `system_prompt` ("si los
+fragmentos no contienen la respuesta, indícalo en vez de inventar"), respondió
+correctamente que *"los fragmentos recuperados no contienen información
+específica..."* en vez de alucinar una respuesta — el diseño de abstención por
+prompt funcionó como red de seguridad, aunque la respuesta ideal (con el chunk
+correcto) sí estaba disponible en el índice.
+
+**Implicación para el reporte de "hallazgos y limitaciones" del video:** Recall@k
+tal como se mide aquí es a nivel de **página**, no de **chunk** — es una métrica
+más generosa que la precisión real percibida por el usuario. Con corpus normativos
+donde una misma página repite terminología en artículos distintos, el overlap alto
+entre chunks (30 tokens en `config_b`) puede generar "casi duplicados" que
+compiten por el mismo top-k sin que el correcto necesariamente gane. Mejora futura
+no implementada por alcance de tiempo: Recall@k a nivel de chunk_id exacto (no solo
+doc+página) en el eval set, y/o rerank con un modelo cross-encoder antes de pasar
+contexto al LLM.
+
 ## Comparación de embeddings (local vs. OpenAI)
 
 Completada con `eval/run_openai_comparison.py` (API key real, costo real
