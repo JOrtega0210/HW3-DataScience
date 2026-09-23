@@ -19,7 +19,7 @@ faiss-cpu==1.9.0
 
 # --- Comparación de embeddings OpenAI (Tarea 1, Fase 4) ---
 # Requiere OPENAI_EMBEDDINGS_API_KEY en .env
-openai==1.51.2
+openai==3.19.0
 
 # --- LLM de generación (Tarea 1, Fase 3) ---
 # Requiere ANTHROPIC_API_KEY en .env

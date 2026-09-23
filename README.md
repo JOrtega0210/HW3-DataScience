@@ -63,15 +63,20 @@ copy .env.example .env
 
 ## Credenciales
 
-Este proyecto se desarrolla de forma incremental **sin requerir API keys de pago** en
-las primeras fases (extracción, limpieza, chunking, embeddings locales, retrieval,
-evaluación de Recall@k). Las claves solo son necesarias para:
+El proyecto se desarrolló de forma incremental sin requerir API keys de pago en las
+primeras fases (extracción, limpieza, chunking, embeddings locales, retrieval,
+evaluación de Recall@k). Actualmente conectado con una **API key de OpenAI**:
 
-| Variable | Cuándo se necesita |
-|---|---|
-| `ANTHROPIC_API_KEY` u `OPENAI_API_KEY` | Generación de la respuesta final del LLM (Tarea 1, Fase 3) |
-| `OPENAI_EMBEDDINGS_API_KEY` | Comparación local vs. `text-embedding-3-small` (Tarea 1, Fase 4) |
-| `OECE_API_KEY` | Solo si el portal OECE introduce autenticación (hoy no la requiere) |
+| Variable | Uso | Estado |
+|---|---|---|
+| `OPENAI_API_KEY` | Generación de la respuesta final del LLM (`gpt-4o-mini`, Fase 3) | ✅ conectada |
+| `OPENAI_EMBEDDINGS_API_KEY` | Comparación local vs. `text-embedding-3-small` (Fase 4) | ✅ conectada (usa la misma key que `OPENAI_API_KEY` si no se define aparte) |
+| `ANTHROPIC_API_KEY` | Alternativa de LLM (no usada; `llm.provider` en `config.yaml` está en `"openai"`) | vacía, opcional |
+| `OECE_API_KEY` | Solo si el portal OECE introduce autenticación (hoy no la requiere) | vacía, no aplica aún |
+
+El motor sigue usando el modelo de embeddings **local** por defecto para la app
+(`embeddings.active_provider: "local"`) — OpenAI se usó puntualmente para la
+comparación de la Fase 4, no como proveedor de producción (ver esa sección).
 
 ## Cómo ejecutar — Tarea 1 (RAG Normativo)
 
@@ -123,26 +128,28 @@ completo de retrieval funciona antes de conectar el LLM (Fase 3).
 
 `src/engine.py` expone una única función pública, `answer_question(query, config)`,
 sin ninguna dependencia de UI (verificado: importar `src.engine` no carga Streamlit).
-Encapsula retrieval + abstención por threshold + citas + nota de alcance + logging de
-costo; la generación con LLM está enchufada pero sin proveedor real todavía (ver
-Credenciales) — devuelve un `llm_error` estructurado en vez de fallar.
+Encapsula retrieval + abstención por threshold + citas + nota de alcance + generación
+con LLM (OpenAI `gpt-4o-mini`, conectado con API key real) + logging de costo; los
+errores de API se devuelven como `llm_error` estructurado en vez de fallar.
 
-Prueba con 3 preguntas de control:
+Prueba con 3 preguntas de control (con el LLM real ya conectado):
 
 | Pregunta | Resultado |
 |---|---|
-| "¿Qué es la subcontratación...?" (in-domain) | No se abstiene, recupera `ley_32069` p.2, sim=0.785 |
-| "¿Cuál es la capital de Francia?" (out-of-domain) | **Se abstiene** (sim=0.232 < threshold 0.55) |
-| "¿Qué dice el reglamento sobre el procedimiento de selección?" | No se abstiene, recupera `ley_32069` p.36, sim=0.751 |
+| "¿Qué es la subcontratación...?" (in-domain) | No se abstiene. Respuesta correcta citando Ley N.° 32069, página 2. Costo real: **944 in / 95 out tokens ≈ USD 0.0002**, 26.1s |
+| "¿Cuál es la capital de Francia?" (out-of-domain) | **Se abstiene** (sim=0.232 < threshold 0.60) — **0 tokens gastados**, 0.23s |
+| "¿Qué dice el reglamento sobre el procedimiento de selección?" | No se abstiene en retrieval (sim=0.751, trae contenido de la Ley), pero el LLM **reconoce el límite de alcance** y responde: *"No puedo proporcionar información específica sobre el reglamento... el reglamento no forma parte del corpus indexado."* Costo: 843 in / 50 out tokens ≈ USD 0.00016 |
 
-La tercera pregunta es un hallazgo real relevante para el manejo de alcance: el usuario
-pregunta por el **Reglamento** (explícitamente fuera del corpus), pero el retrieval
-encuentra contenido semánticamente similar en la **Ley** (que sí menciona
-procedimientos de selección) y no se abstiene. Por diseño, `scope_note` viaja en
-*todas* las respuestas (abstenidas o no) precisamente para este caso: cuando se
-conecte el LLM (`system_prompt` en `config.yaml`), debe aclarar explícitamente que la
-respuesta viene de la Ley y no del Reglamento. El threshold actual (0.55, placeholder)
-se recalibrará con un sweep sobre el conjunto de evaluación en la Fase 4.
+La tercera pregunta es la validación en vivo del diseño de dos líneas de defensa: el
+retrieval por similitud **no** distingue que la pregunta es sobre el Reglamento
+(excluido), pero el `scope_note` inyectado en el prompt hace que el LLM sí lo detecte
+y lo aclare en vez de responder como si estuviera dentro del corpus — confirma que la
+segunda línea de defensa (generación) funciona como se diseñó en la Fase 3, antes de
+tener resultados del sweep de threshold de la Fase 4.
+
+Log de costos con llamadas reales versionado en `logs/costs.csv` (deliverable
+explícito del enunciado) — cada fila es una consulta real, con modelo, tokens,
+costo USD y latencia; se sigue acumulando con cada uso de la app o del motor.
 
 Manejo de versiones: cada fragmento citado incluye `version` (`"original"` para la Ley,
 `"modificatoria"` para el DS) tomado de la metadata del documento — no hay artículos
@@ -185,9 +192,24 @@ respuestas y el `system_prompt` instruye al LLM a aclarar el alcance — el
 retrieval es la primera línea de defensa, la generación es la segunda. Detalle
 completo en `eval/results/eval_notes.md`.
 
-**Comparación de embeddings (local vs. OpenAI):** la mitad local está completa
-(arriba); la mitad `text-embedding-3-small` queda pendiente de
-`OPENAI_EMBEDDINGS_API_KEY` (ver Credenciales) — tabla parcial en
+**Comparación de embeddings (local vs. OpenAI), completa:**
+
+```powershell
+python eval/run_openai_comparison.py   # costo real: ~USD 0.004 en total
+```
+
+| Aspecto | Local (768 dim) | OpenAI `text-embedding-3-small` (1536 dim) |
+|---|---|---|
+| Recall@1 / @3 / @5 (`config_b`) | 0.438 / 0.750 / 0.750 | 0.375 / 0.750 / **0.875** |
+| Recall@1 / @3 / @5 (`config_a`) | 0.375 / 0.625 / **0.812** | **0.500** / 0.625 / 0.688 |
+| Tiempo de indexación (890/788 chunks) | 266.6s / 138.1s (CPU) | **14.6s / 8.9s** (API) |
+| Costo real | USD 0.00 | USD 0.0021 / USD 0.0023 |
+| Latencia por consulta | ~0.1–0.3s | 0.48–0.78s (red) |
+
+**No hay ganador universal** (OpenAI mejor en Recall@5 con `config_b`, local mejor
+en Recall@5 con `config_a` y en Recall@1 con `config_b`) — se mantiene el modelo
+**local** como proveedor activo del motor porque el proyecto corre sin costo
+variable por consulta; detalle completo y justificación en
 `eval/results/eval_notes.md`.
 
 `--stage extract` extrae el texto por página con PyMuPDF (preservando el número de
@@ -275,8 +297,8 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Estructura del repositorio y configuración base
 - [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
 - [x] Tarea 1 — Fase 2: chunking, embeddings e índice
-- [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope) — sin LLM conectado aún
-- [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold) — comparación OpenAI pendiente de API key
+- [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope, LLM conectado: OpenAI gpt-4o-mini)
+- [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold, comparación local vs. OpenAI completa)
 - [ ] Tarea 1 — Fase 5: interfaz Streamlit
 - [ ] Tarea 2 — Fase 1: adquisición de datos
 - [ ] Tarea 2 — Fase 2: validación y normalización territorial

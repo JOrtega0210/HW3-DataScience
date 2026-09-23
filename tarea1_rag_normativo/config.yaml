@@ -67,21 +67,25 @@ retrieval:
     excluded_note: "El Reglamento de la Ley 32069 no forma parte del corpus indexado."
 
 llm:
-  provider: "anthropic"
-  model_name: "claude-sonnet-5"
+  # Proveedor real conectado: OpenAI (se tiene API key; Anthropic queda disponible
+  # como alternativa si se agrega ANTHROPIC_API_KEY más adelante).
+  provider: "openai"
+  model_name: "gpt-4o-mini"
   temperature: 0.0
   max_tokens: 800
   system_prompt: >
     Eres un asistente que responde preguntas sobre contrataciones públicas peruanas
     usando exclusivamente los fragmentos recuperados. Cita siempre documento y página.
     Si los fragmentos no contienen la respuesta, indícalo explícitamente en vez de inventar.
+    Si la pregunta se refiere a algo fuera del alcance del corpus (ver nota de alcance),
+    acláralo explícitamente en vez de responder como si estuviera cubierto.
 
 pricing:
-  # USD por 1M tokens; se actualiza cuando se confirme el proveedor real usado.
-  llm_input_per_1m_usd: null
-  llm_output_per_1m_usd: null
+  # USD por 1M tokens, verificados en la documentación de precios de OpenAI (2026-09).
+  llm_input_per_1m_usd: 0.15
+  llm_output_per_1m_usd: 0.60
   embeddings_local_per_1m_usd: 0.0
-  embeddings_openai_per_1m_usd: null
+  embeddings_openai_per_1m_usd: 0.02
 
 logging:
   costs_log_file: "logs/costs.csv"

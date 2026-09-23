@@ -24,8 +24,12 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from src.embeddings import embed_texts
 from src.indexing import load_index
+
+load_dotenv()  # busca .env en el cwd y directorios padre (ej. raíz del repo)
 
 
 @dataclass
@@ -98,34 +102,71 @@ class RagEngine:
             )
         return results
 
+    def _build_context_block(self, chunks: list[RetrievedChunk]) -> str:
+        parts = []
+        for c in chunks:
+            parts.append(
+                f"[Documento: {c.doc_title} ({c.version}) | Página {c.page_number} | "
+                f"similitud {c.similarity:.3f}]\n{c.text}"
+            )
+        return "\n\n".join(parts)
+
     def _generate_answer(
         self, query: str, chunks: list[RetrievedChunk]
     ) -> tuple[str | None, str | None, str, int | None, int | None, float | None]:
-        """Pendiente de conectar a un proveedor real (ver Credenciales en README).
-        Devuelve siempre una tupla; los errores son datos, no excepciones."""
+        """Llama al LLM configurado (hoy: OpenAI). Nunca lanza excepción hacia
+        arriba: cualquier error de la API se devuelve como dato (`llm_error`)."""
         llm_cfg = self.config["llm"]
         model_name = llm_cfg["model_name"]
-        api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        provider = llm_cfg["provider"]
+
+        if provider != "openai":
+            return (None, f"Proveedor '{provider}' aún no implementado.", model_name, None, None, None)
+
+        api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             return (
                 None,
-                "Sin API key configurada (ANTHROPIC_API_KEY / OPENAI_API_KEY vacías en "
-                ".env): se devuelven los fragmentos recuperados pero no se genera "
-                "respuesta de LLM todavía.",
+                "Sin OPENAI_API_KEY configurada en .env: se devuelven los fragmentos "
+                "recuperados pero no se genera respuesta de LLM todavía.",
                 model_name,
                 None,
                 None,
                 None,
             )
-        return (
-            None,
-            "Llamada real al LLM aún no implementada (pendiente de una parte "
-            "posterior una vez confirmado el proveedor a usar).",
-            model_name,
-            None,
-            None,
-            None,
+
+        context = self._build_context_block(chunks)
+        user_prompt = (
+            f"Fragmentos recuperados del corpus:\n\n{context}\n\n"
+            f"Nota de alcance del corpus: {self.scope_note}\n\n"
+            f"Pregunta del usuario: {query}"
         )
+
+        try:
+            from openai import OpenAI
+
+            client = OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model=model_name,
+                temperature=llm_cfg["temperature"],
+                max_tokens=llm_cfg["max_tokens"],
+                messages=[
+                    {"role": "system", "content": llm_cfg["system_prompt"]},
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
+        except Exception as exc:  # noqa: BLE001 - error de API devuelto como dato, no excepción
+            return (None, f"Error llamando a la API de {provider} ({model_name}): {exc}", model_name, None, None, None)
+
+        answer = response.choices[0].message.content
+        input_tokens = response.usage.prompt_tokens
+        output_tokens = response.usage.completion_tokens
+        pricing = self.config["pricing"]
+        usd_cost = (
+            input_tokens * pricing["llm_input_per_1m_usd"] / 1_000_000
+            + output_tokens * pricing["llm_output_per_1m_usd"] / 1_000_000
+        )
+        return (answer, None, model_name, input_tokens, output_tokens, usd_cost)
 
     def _log_cost(self, result: RAGResult) -> None:
         self.costs_log_path.parent.mkdir(parents=True, exist_ok=True)

@@ -67,13 +67,26 @@ aclarar el alcance, que negarle la respuesta a un usuario legítimo).
 
 ## Comparación de embeddings (local vs. OpenAI)
 
+Completada con `eval/run_openai_comparison.py` (API key real, costo real
+< 1 centavo de dólar en total).
+
 | Aspecto | Local (`paraphrase-multilingual-mpnet-base-v2`) | `text-embedding-3-small` (OpenAI) |
 |---|---|---|
-| Recall@1 / @3 / @5 (config_b) | 0.438 / 0.750 / 0.750 | **pendiente** — requiere `OPENAI_EMBEDDINGS_API_KEY` |
-| Tiempo de indexación (890 chunks, 1ª corrida) | 266.6s (config_a) / 138.1s (config_b), CPU | pendiente |
-| Costo | USD 0.00 | pendiente (según tarifa vigente de OpenAI) |
-| Latencia promedio por consulta | ~0.1–0.3s (tras cache de modelo en memoria) | pendiente |
+| Recall@1 (config_a / config_b) | 0.375 / 0.438 | 0.500 / 0.375 |
+| Recall@3 (config_a / config_b) | 0.625 / 0.750 | 0.625 / 0.750 |
+| Recall@5 (config_a / config_b) | 0.812 / 0.750 | 0.688 / **0.875** |
+| Tiempo de indexación (890 / 788 chunks) | 266.6s / 138.1s (CPU local, 1ª corrida) | **14.6s / 8.9s** (API remota) |
+| Costo real | USD 0.00 | USD 0.002082 (config_a) / USD 0.002298 (config_b) |
+| Latencia promedio por consulta | ~0.1–0.3s (modelo ya cargado en memoria) | 0.777s / 0.476s (round-trip de red) |
 | Dimensión | 768 | 1536 |
+| Requisito | Local (descarga ~420MB una sola vez) | Remoto (API key + red) |
 
-La mitad local de la comparación ya está completa y documentada; la mitad OpenAI
-queda pendiente hasta contar con la API key (ver README, sección Credenciales).
+**No hay un ganador universal:** OpenAI gana en Recall@5 para `config_b` (0.875 vs.
+0.750) pero pierde en Recall@1 (0.375 vs. 0.438); para `config_a` es al revés
+(gana Recall@1, pierde Recall@5). La indexación es ~15-18x más rápida con la API
+(sin competir por CPU local), a cambio de depender de red y de un costo por token
+(aunque marginal en este corpus: <$0.003 por config). Dado que el proyecto corre
+100% local por defecto sin costo variable por consulta, **se mantiene el modelo
+local como proveedor activo** (`embeddings.active_provider: "local"` en
+`config.yaml`); OpenAI queda documentado como alternativa viable si se necesita
+reducir tiempo de build o evitar mantener el modelo localmente.
