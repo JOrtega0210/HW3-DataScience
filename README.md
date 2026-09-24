@@ -448,6 +448,38 @@ agregando `tender_description` al contexto. Validación en vivo tras el fix:
 | "Tengo una empresa pequeña, ¿hay agua potable en Cajamarca?" | Respuesta correcta citando el ocid, monto y entidad reales |
 | "¿Cómo se prepara un ceviche peruano?" | El LLM **no abstiene en retrieval** (ver hallazgo de separabilidad arriba) pero **se niega a responder**, explicando que los procesos recuperados son sobre pasteurizadores/cuyes/herramientas, no sobre comida — la segunda línea de defensa funciona en vivo exactamente como se documentó en la Tarea 1 |
 
+### Dashboard Streamlit (Fase 4)
+
+```powershell
+streamlit run app.py
+```
+
+Lee únicamente archivos precomputados de las Fases 1, 2, 3 y 5 (dataset
+validado, índice del RAG híbrido, reportes de calidad y de riesgo) — no
+descarga ni reconstruye nada al iniciar. Seis pestañas + KPI header siempre
+visible (procesos, monto total, departamentos, share monopostor):
+
+1. **Mapa** (choropleth por departamento, procesos o monto, con `peru_departamentos.geojson`).
+2. **Pregunta (RAG híbrido)** — filtros exactos de departamento/categoría/monto
+   opcionales + pregunta en lenguaje natural; threshold ajustable en vivo desde
+   el sidebar.
+3. **Tabla** ordenable + botón de descarga CSV con los filtros aplicados.
+4. **Distribución** — monto por categoría (colores fijos por categoría, nunca
+   ciclados), procesos por mes, top-15 departamentos por monto.
+5. **Indicador de riesgo** — con la advertencia explícita siempre visible.
+6. **Calidad de datos** — reportes de la Fase 2 y resumen de adquisición de la Fase 1.
+
+Sidebar con filtros de departamento, categoría, rango de monto, rango de
+fecha y threshold de similitud; `if filtered.empty: st.warning(...); st.stop()`
+maneja la selección vacía sin romper la app.
+
+Probado en navegador real: con el filtro `departamento=Cajamarca` aplicado en
+la pestaña de pregunta, la consulta sobre "agua potable rural en Choropampa"
+reprodujo exactamente el hallazgo ya documentado en `eval/results/hybrid_eval_notes.md`
+(874 candidatos tras el filtro, top-1 sigue siendo el proceso de otra
+localidad de Cajamarca) — confirma que el dashboard es consistente con la
+evaluación offline, no un camino de código distinto.
+
 ### Indicador de riesgo — adjudicaciones monopostor (Fase 5)
 
 ```powershell
@@ -519,6 +551,6 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Tarea 2 — Fase 1: adquisición de datos
 - [x] Tarea 2 — Fase 2: validación y normalización territorial
 - [x] Tarea 2 — Fase 3: RAG híbrido y su evaluación
-- [ ] Tarea 2 — Fase 4: dashboard Streamlit
+- [x] Tarea 2 — Fase 4: dashboard Streamlit
 - [x] Tarea 2 — Fase 5: indicador de riesgo monopostor
 - [ ] Video de presentación
