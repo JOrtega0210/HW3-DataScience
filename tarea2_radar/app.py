@@ -179,6 +179,7 @@ with tab_pregunta:
                 st.write(f"**Monto:** {r.currency} {r.amount:,.2f}" if r.amount is not None else "**Monto:** N/D")
                 st.write(f"**Fecha de convocatoria:** {r.date_published}")
                 st.write(f"**Categoría:** {CATEGORY_LABELS_ES.get(r.main_procurement_category, r.main_procurement_category)}")
+                st.write(f"**Descripción:** {r.tender_description or '(sin descripción)'}")
     elif ask:
         st.warning("Escribe una pregunta antes de consultar.")
 

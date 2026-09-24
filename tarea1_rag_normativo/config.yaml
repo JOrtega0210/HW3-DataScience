@@ -67,10 +67,11 @@ retrieval:
     excluded_note: "El Reglamento de la Ley 32069 no forma parte del corpus indexado."
 
 llm:
-  # Proveedor real conectado: OpenAI (se tiene API key; Anthropic queda disponible
-  # como alternativa si se agrega ANTHROPIC_API_KEY más adelante).
-  provider: "openai"
-  model_name: "gpt-4o-mini"
+  # Proveedor activo: Gemini (la key de OpenAI usada antes quedó inválida -- 401 --
+  # después de compartirse en texto plano; Anthropic queda disponible como
+  # alternativa si se agrega ANTHROPIC_API_KEY más adelante).
+  provider: "gemini"
+  model_name: "gemini-3.5-flash-lite"
   temperature: 0.0
   max_tokens: 800
   system_prompt: >
@@ -81,10 +82,11 @@ llm:
     acláralo explícitamente en vez de responder como si estuviera cubierto.
 
 pricing:
-  # USD por 1M tokens, verificados en la documentación de precios de OpenAI (2026-09).
-  llm_input_per_1m_usd: 0.15
-  llm_output_per_1m_usd: 0.60
+  # USD por 1M tokens. LLM: Gemini 3.5 Flash-Lite, verificado en ai.google.dev/gemini-api/docs/pricing (2026-09).
+  llm_input_per_1m_usd: 0.30
+  llm_output_per_1m_usd: 2.50
   embeddings_local_per_1m_usd: 0.0
+  # OpenAI text-embedding-3-small, verificado 2026-09 (comparación Fase 4; ya no es el proveedor activo de LLM).
   embeddings_openai_per_1m_usd: 0.02
 
 logging:

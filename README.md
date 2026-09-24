@@ -65,13 +65,14 @@ copy .env.example .env
 
 El proyecto se desarrolló de forma incremental sin requerir API keys de pago en las
 primeras fases (extracción, limpieza, chunking, embeddings locales, retrieval,
-evaluación de Recall@k). Actualmente conectado con una **API key de OpenAI**:
+evaluación de Recall@k).
 
 | Variable | Uso | Estado |
 |---|---|---|
-| `OPENAI_API_KEY` | Generación de la respuesta final del LLM (`gpt-4o-mini`, Fase 3) | ✅ conectada |
-| `OPENAI_EMBEDDINGS_API_KEY` | Comparación local vs. `text-embedding-3-small` (Fase 4) | ✅ conectada (usa la misma key que `OPENAI_API_KEY` si no se define aparte) |
-| `ANTHROPIC_API_KEY` | Alternativa de LLM (no usada; `llm.provider` en `config.yaml` está en `"openai"`) | vacía, opcional |
+| `GEMINI_API_KEY` | Generación de la respuesta final del LLM en ambas tareas (`gemini-3.5-flash-lite`) | ✅ conectada — proveedor activo (`llm.provider: "gemini"`) |
+| `OPENAI_API_KEY` | Alternativa de LLM (código soportado en `src/engine.py` / `src/hybrid_engine.py`) | ⚠️ la key usada en la Tarea 1 quedó inválida (401) tras compartirse en el chat; se cambió a Gemini |
+| `OPENAI_EMBEDDINGS_API_KEY` | Comparación local vs. `text-embedding-3-small` (Fase 4, Tarea 1) | ✅ se usó y completó antes de que la key quedara inválida — resultados ya documentados, no se necesita de nuevo |
+| `ANTHROPIC_API_KEY` | Alternativa de LLM adicional (soportada en el código) | vacía, opcional |
 | `OECE_API_KEY` | Solo si el portal OECE introduce autenticación (hoy no la requiere) | vacía, no aplica aún |
 
 El motor sigue usando el modelo de embeddings **local** por defecto para la app
@@ -129,10 +130,14 @@ completo de retrieval funciona antes de conectar el LLM (Fase 3).
 `src/engine.py` expone una única función pública, `answer_question(query, config)`,
 sin ninguna dependencia de UI (verificado: importar `src.engine` no carga Streamlit).
 Encapsula retrieval + abstención por threshold + citas + nota de alcance + generación
-con LLM (OpenAI `gpt-4o-mini`, conectado con API key real) + logging de costo; los
+con LLM (soporta Gemini/OpenAI/Anthropic; proveedor activo: Gemini
+`gemini-3.5-flash-lite`, conectado con API key real) + logging de costo; los
 errores de API se devuelven como `llm_error` estructurado en vez de fallar.
 
-Prueba con 3 preguntas de control (con el LLM real ya conectado):
+Prueba con 3 preguntas de control (con el LLM real ya conectado; corrida
+original con OpenAI `gpt-4o-mini` — reemplazado por Gemini después de que esa
+key quedara inválida, ver Credenciales; el comportamiento se re-validó con
+Gemini en la Tarea 2 con resultados equivalentes):
 
 | Pregunta | Resultado |
 |---|---|
@@ -423,11 +428,25 @@ diagnosticados a fondo (no solo la métrica):
    absurdas recae aún más en el LLM (citación por ocid, nunca en el
    threshold). Detalle completo en `eval/results/hybrid_eval_notes.md`.
 
-**Nota sobre la API key:** al conectar el LLM para Fase 3 se detectó que la
-key de OpenAI usada en la Tarea 1 ahora devuelve `401 invalid_api_key` — deja
-de funcionar en algún punto entre tareas. El retrieval (Recall@k, que no
-necesita LLM) funciona igual; la generación de respuesta queda pendiente de
-una key válida.
+**Cambio de proveedor de LLM: OpenAI → Gemini.** La key de OpenAI usada en la
+Tarea 1 empezó a devolver `401 invalid_api_key` (quedó inválida después de
+compartirse en texto plano en algún punto entre tareas). Se conectó
+**Gemini 3.5 Flash-Lite** como proveedor activo en ambas tareas (`llm.provider:
+"gemini"` en ambos `config.yaml`, motor con soporte para gemini/openai/anthropic
+según la key disponible en `.env`). Precios verificados en
+`ai.google.dev/gemini-api/docs/pricing` (2026-09): USD 0.30 / 1M tokens input,
+USD 2.50 / 1M output.
+
+**Bug real encontrado y corregido al probar con Gemini:** el contexto que el
+motor híbrido le pasaba al LLM solo incluía el *título* de cada proceso
+recuperado (ej. `"LP-SM-1-2026-MDM/CS-1"`), nunca la *descripción* — el LLM no
+tenía forma de juzgar si un proceso respondía la pregunta. Se corrigió
+agregando `tender_description` al contexto. Validación en vivo tras el fix:
+
+| Pregunta | Resultado |
+|---|---|
+| "Tengo una empresa pequeña, ¿hay agua potable en Cajamarca?" | Respuesta correcta citando el ocid, monto y entidad reales |
+| "¿Cómo se prepara un ceviche peruano?" | El LLM **no abstiene en retrieval** (ver hallazgo de separabilidad arriba) pero **se niega a responder**, explicando que los procesos recuperados son sobre pasteurizadores/cuyes/herramientas, no sobre comida — la segunda línea de defensa funciona en vivo exactamente como se documentó en la Tarea 1 |
 
 ### Indicador de riesgo — adjudicaciones monopostor (Fase 5)
 
@@ -494,7 +513,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Estructura del repositorio y configuración base
 - [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
 - [x] Tarea 1 — Fase 2: chunking, embeddings e índice
-- [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope, LLM conectado: OpenAI gpt-4o-mini)
+- [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope, LLM conectado: Gemini)
 - [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold, comparación local vs. OpenAI completa)
 - [x] Tarea 1 — Fase 5: interfaz Streamlit
 - [x] Tarea 2 — Fase 1: adquisición de datos

@@ -2,3 +2,6 @@ timestamp,query,abstained,model_name,input_tokens,output_tokens,usd_cost,latency
 2026-09-23T21:05:25,como se prepara un ceviche peruano,False,gpt-4o-mini,,,,6.46
 2026-09-23T21:06:04,como se prepara un ceviche peruano,False,gpt-4o-mini,,,,13.912
 2026-09-23T21:06:04,"Tengo una empresa pequeña, ¿qué proceso de agua potable hay en Cajamarca?",False,gpt-4o-mini,,,,0.52
+2026-09-23T21:23:30,"Tengo una empresa pequeña, ¿hay algún proceso de agua potable en Cajamarca?",False,gemini-3.5-flash-lite,654,79,0.0003937,21.12
+2026-09-23T21:24:50,"Tengo una empresa pequeña, ¿hay algún proceso de agua potable en Cajamarca?",False,gemini-3.5-flash-lite,1134,162,0.0007451999999999999,14.392
+2026-09-23T21:24:52,como se prepara un ceviche peruano,False,gemini-3.5-flash-lite,1032,50,0.0004346,2.526

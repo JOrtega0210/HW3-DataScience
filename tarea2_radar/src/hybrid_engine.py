@@ -48,6 +48,7 @@ class RetrievedProcess:
     date_published: str | None
     main_procurement_category: str | None
     tender_title: str
+    tender_description: str | None
     similarity: float
 
 
@@ -120,6 +121,7 @@ class HybridRagEngine:
                     date_published=m.get("date_published"),
                     main_procurement_category=m.get("main_procurement_category"),
                     tender_title=m.get("tender_title"),
+                    tender_description=m.get("tender_description"),
                     similarity=float(sims[pos]),
                 )
             )
@@ -128,13 +130,22 @@ class HybridRagEngine:
     def _generate_answer(
         self, query: str, retrieved: list[RetrievedProcess]
     ) -> tuple[str | None, str | None, str, int | None, int | None, float | None]:
+        """Llama al LLM configurado (gemini/openai/anthropic). Nunca lanza
+        excepción hacia arriba: cualquier error de la API se devuelve como
+        dato (`llm_error`)."""
         llm_cfg = self.config["llm"]
         model_name = llm_cfg["model_name"]
-        api_key = os.environ.get("OPENAI_API_KEY")
+        provider = llm_cfg["provider"]
+
+        env_var = {"gemini": "GEMINI_API_KEY", "openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY"}.get(provider)
+        if env_var is None:
+            return (None, f"Proveedor '{provider}' no soportado.", model_name, None, None, None)
+
+        api_key = os.environ.get(env_var)
         if not api_key:
             return (
                 None,
-                "Sin OPENAI_API_KEY configurada en .env: se devuelven los procesos "
+                f"Sin {env_var} configurada en .env: se devuelven los procesos "
                 "recuperados pero no se genera respuesta de LLM.",
                 model_name,
                 None,
@@ -145,30 +156,62 @@ class HybridRagEngine:
         context = "\n\n".join(
             f"[ocid: {r.ocid} | {r.buyer_name} | {r.buyer_department} | "
             f"{r.currency} {r.amount} | {r.date_published} | similitud {r.similarity:.3f}]\n"
-            f"{r.tender_title}"
+            f"{r.tender_title}: {r.tender_description or '(sin descripción)'}"
             for r in retrieved
         )
         user_prompt = f"Procesos recuperados:\n\n{context}\n\nPregunta: {query}"
 
         try:
-            from openai import OpenAI
+            if provider == "gemini":
+                from google import genai
+                from google.genai import types
 
-            client = OpenAI(api_key=api_key)
-            response = client.chat.completions.create(
-                model=model_name,
-                temperature=llm_cfg["temperature"],
-                max_tokens=llm_cfg["max_tokens"],
-                messages=[
-                    {"role": "system", "content": llm_cfg["system_prompt"]},
-                    {"role": "user", "content": user_prompt},
-                ],
-            )
+                client = genai.Client(api_key=api_key)
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=user_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=llm_cfg["system_prompt"],
+                        temperature=llm_cfg["temperature"],
+                        max_output_tokens=llm_cfg["max_tokens"],
+                    ),
+                )
+                answer = response.text
+                input_tokens = response.usage_metadata.prompt_token_count
+                output_tokens = response.usage_metadata.candidates_token_count
+            elif provider == "openai":
+                from openai import OpenAI
+
+                client = OpenAI(api_key=api_key)
+                response = client.chat.completions.create(
+                    model=model_name,
+                    temperature=llm_cfg["temperature"],
+                    max_tokens=llm_cfg["max_tokens"],
+                    messages=[
+                        {"role": "system", "content": llm_cfg["system_prompt"]},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                )
+                answer = response.choices[0].message.content
+                input_tokens = response.usage.prompt_tokens
+                output_tokens = response.usage.completion_tokens
+            else:  # anthropic
+                import anthropic
+
+                client = anthropic.Anthropic(api_key=api_key)
+                response = client.messages.create(
+                    model=model_name,
+                    max_tokens=llm_cfg["max_tokens"],
+                    temperature=llm_cfg["temperature"],
+                    system=llm_cfg["system_prompt"],
+                    messages=[{"role": "user", "content": user_prompt}],
+                )
+                answer = response.content[0].text
+                input_tokens = response.usage.input_tokens
+                output_tokens = response.usage.output_tokens
         except Exception as exc:  # noqa: BLE001 - error de API como dato, no excepción
-            return (None, f"Error llamando a la API de OpenAI ({model_name}): {exc}", model_name, None, None, None)
+            return (None, f"Error llamando a la API de {provider} ({model_name}): {exc}", model_name, None, None, None)
 
-        answer = response.choices[0].message.content
-        input_tokens = response.usage.prompt_tokens
-        output_tokens = response.usage.completion_tokens
         pricing = self.config["pricing"]
         usd_cost = (
             input_tokens * pricing["llm_input_per_1m_usd"] / 1_000_000
