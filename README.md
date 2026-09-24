@@ -379,6 +379,88 @@ Dataset final: `data/processed/processes_validated.jsonl`/`.csv`, **20,866
 filas** (21,750 − 884 duplicados), con columnas nuevas `buyer_department`
 (normalizado) e `is_encoding_issue`.
 
+### RAG híbrido (Fase 3)
+
+```powershell
+python build_hybrid_index.py     # embebe título+descripción de los 20,866 procesos
+python eval/run_hybrid_eval.py   # Recall@k sin LLM, sobre 12 preguntas conocidas
+```
+
+Reutiliza el modelo de embeddings local de la Tarea 1. Un embedding por proceso
+(no por chunk, ya que la descripción cabe en ~50-70 tokens); **idempotente y
+reanudable con checkpointing real cada 250 procesos** (no solo al final) —
+necesario porque el build tardó ~31 minutos en esta máquina y el proceso en
+segundo plano se interrumpió una vez por presión de memoria del sistema (7.9GB
+RAM total); con el checkpointing, una interrupción ya no pierde el trabajo
+previo.
+
+`src/hybrid_engine.py` expone `answer_question(query, config, filters)`: los
+filtros estructurados (`departamento`, `categoria`, `monto_min/max`,
+`fecha_desde/hasta`) se aplican **siempre sobre metadata antes de tocar los
+embeddings** — nunca se convierten en texto para buscar por similitud.
+
+**Recall@k** (`eval/results/hybrid_retrieval_detail.csv`, 12 preguntas con
+proceso relevante conocido): Recall@1=0.250, Recall@3=0.333, **Recall@5=0.417**
+— sensiblemente más bajo que en la Tarea 1 (~0.75-0.81). Dos hallazgos reales,
+diagnosticados a fondo (no solo la métrica):
+
+1. **El lenguaje burocrático repetitivo confunde al embedding a esta escala.**
+   Ejemplo real: la pregunta sobre "mejoramiento de agua potable en San
+   Sebastián de Choropampa" (Cajamarca) recuperó un proceso *distinto*, de otra
+   localidad de Cajamarca, con mayor similitud (0.772 vs. el correcto) —
+   ambas descripciones son casi idénticas salvo el nombre del centro poblado,
+   y el modelo no discrimina bien nombres de localidades pequeñas y poco
+   frecuentes. **Se probó si el filtro de departamento lo arregla: no** — el
+   proceso incorrecto también es de Cajamarca, así que el filtro reduce el
+   universo (20,866 → 874) pero no alcanza a discriminar entre localidades
+   dentro del mismo departamento.
+2. **A esta escala, ningún threshold separa limpiamente in-domain de
+   out-of-domain** (más severo que en la Tarea 1): la pregunta absurda
+   *"¿cómo se prepara un ceviche peruano?"* obtiene similitud **0.696**, más
+   alta que varias preguntas reales del dominio (ej. 0.466). El threshold se
+   recalibró de 0.60 (Tarea 1) a **0.45** priorizando no abstenerse de
+   preguntas reales, aceptando que aquí la defensa principal contra preguntas
+   absurdas recae aún más en el LLM (citación por ocid, nunca en el
+   threshold). Detalle completo en `eval/results/hybrid_eval_notes.md`.
+
+**Nota sobre la API key:** al conectar el LLM para Fase 3 se detectó que la
+key de OpenAI usada en la Tarea 1 ahora devuelve `401 invalid_api_key` — deja
+de funcionar en algún punto entre tareas. El retrieval (Recall@k, que no
+necesita LLM) funciona igual; la generación de respuesta queda pendiente de
+una key válida.
+
+### Indicador de riesgo — adjudicaciones monopostor (Fase 5)
+
+```powershell
+python compute_risk_indicator.py
+```
+
+Share de procesos adjudicados con exactamente 1 postor, por departamento y por
+proveedor (`src/risk_indicator.py`). **Advertencia explícita, siempre visible
+en el dashboard:** un solo postor no es evidencia de un delito — puede
+reflejar un mercado con poca oferta o una contratación muy especializada; es
+una señal estadística para priorizar revisión, nunca una acusación.
+
+Top 5 departamentos por share real:
+
+| Departamento | Share monopostor | Procesos (monopostor / adjudicados) |
+|---|---|---|
+| Tumbes | 36.7% | 44 / 120 |
+| Lima | 30.2% | 1,175 / 3,886 |
+| Amazonas | 16.2% | 35 / 216 |
+| Arequipa | 14.2% | 78 / 548 |
+| La Libertad | 10.3% | 50 / 486 |
+
+**Mínimo de procesos justificado:** el Top 10 de proveedores solo considera
+entidades con ≥5 procesos adjudicados en total (`risk_indicator.min_processes_per_entity`
+en `config.yaml`) — con menos, un share de 100% no es estadísticamente
+confiable (ej. 1 de 1 proceso). **Sin publicar nombres individuales:** los
+proveedores que no calzan con un patrón de persona jurídica (sin "S.A.C.",
+"S.R.L.", "CONSORCIO", etc. en el nombre) se anonimizan como
+`"(persona natural #N — nombre no publicado)"` — de los primeros 5 del Top 10
+real, 4 son personas naturales anonimizadas y 1 es una empresa
+(`SISTEMAS ORACLE DEL PERÚ S.R.L.`, 100% de share en 8 procesos).
+
 ### Interfaz Streamlit (Fase 5)
 
 ```powershell
@@ -417,7 +499,7 @@ riesgo monopostor y log de costos se agregan a medida que cada fase se completa.
 - [x] Tarea 1 — Fase 5: interfaz Streamlit
 - [x] Tarea 2 — Fase 1: adquisición de datos
 - [x] Tarea 2 — Fase 2: validación y normalización territorial
-- [ ] Tarea 2 — Fase 3: RAG híbrido
+- [x] Tarea 2 — Fase 3: RAG híbrido y su evaluación
 - [ ] Tarea 2 — Fase 4: dashboard Streamlit
-- [ ] Tarea 2 — Fase 5: indicador de riesgo monopostor
+- [x] Tarea 2 — Fase 5: indicador de riesgo monopostor
 - [ ] Video de presentación

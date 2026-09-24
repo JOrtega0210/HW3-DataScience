@@ -29,6 +29,9 @@ tarea2_radar/data/processed/processes.csv
 # Logs locales (se conservan ejemplos versionados aparte si se requieren)
 *.log
 
+# Artefactos locales de Claude Code (no son parte del proyecto)
+.claude/
+
 # OS / editores
 .DS_Store
 Thumbs.db

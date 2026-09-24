@@ -1,0 +1,75 @@
+[
+  {
+    "id": "h01",
+    "question": "¿Hay algún proceso para el reemplazo del puente San Francisco en la red vial nacional?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1223357"
+  },
+  {
+    "id": "h02",
+    "question": "¿Qué proceso busca adquirir tramadol clorhidrato para el Hospital Cayetano Heredia?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1226639"
+  },
+  {
+    "id": "h03",
+    "question": "¿Hay alguna contratación para traslado aéreo en avión ambulancia de pacientes asegurados?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1226672"
+  },
+  {
+    "id": "h04",
+    "question": "¿Qué proceso es para el mejoramiento del sistema de agua potable y alcantarillado en San Sebastián de Choropampa?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1232388"
+  },
+  {
+    "id": "h05",
+    "question": "¿Hay un proceso de alquiler de laptops para la evaluación nacional de logros de aprendizaje del MINEDU?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-2026-10189-6"
+  },
+  {
+    "id": "h06",
+    "question": "¿Qué proceso adquiere vestuario para la oficina de seguridad ciudadana de la Municipalidad Provincial de Mariscal Nieto?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1226593"
+  },
+  {
+    "id": "h07",
+    "question": "¿Hay alguna contratación para el mantenimiento y pintado del estadio Mariano Melgar?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1225455"
+  },
+  {
+    "id": "h08",
+    "question": "¿Qué proceso contrata la suscripción anual a bibliotecas virtuales para institutos de educación superior?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1228182"
+  },
+  {
+    "id": "h09",
+    "question": "¿Hay un proceso para adquirir combustible para maquinaria cerca al penal de Yanamilla?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1226224"
+  },
+  {
+    "id": "h10",
+    "question": "¿Qué proceso del Gobierno Regional de Cusco compra madera para encofrado del sistema de agua potable y desagüe en Huaro?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1227495"
+  },
+  {
+    "id": "h11",
+    "question": "¿Hay una contratación de vehículos de seguridad ciudadana para la provincia de Carabaya?",
+    "filters": {},
+    "expected_ocid": "ocds-dgv273-seacev3-1226492"
+  },
+  {
+    "id": "h12",
+    "question": "¿Qué obra hay sobre mejoramiento de un parque central?",
+    "filters": {"departamento": "Piura", "categoria": "works"},
+    "expected_ocid": "ocds-dgv273-seacev3-1250498",
+    "notes": "prueba condiciones estructuradas (departamento+categoría) combinadas con búsqueda semántica"
+  }
+]

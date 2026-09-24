@@ -73,8 +73,29 @@ embeddings:
 
 retrieval:
   top_k: 5
-  similarity_threshold: 0.55  # placeholder; se recalibra en Fase 3 de Tarea 2 si no transfiere de Tarea 1
+  # Recalibrado en Fase 3 con sweep real (ver eval/results/hybrid_threshold_sweep.csv):
+  # a esta escala (20,866 procesos, descripciones cortas y repetitivas) el threshold
+  # de Tarea 1 (0.60) NO transfiere -- abstenía incorrectamente 1/12 preguntas reales.
+  # 0.45 mantiene 0% de abstención incorrecta en las 12 preguntas conocidas.
+  similarity_threshold: 0.45
   numeric_filters: ["monto", "fecha", "departamento", "categoria"]  # nunca se embeben, siempre se filtran
+
+llm:
+  provider: "openai"
+  model_name: "gpt-4o-mini"
+  temperature: 0.0
+  max_tokens: 800
+  system_prompt: >
+    Eres un asistente que responde preguntas sobre procesos de contratación pública
+    peruana usando exclusivamente los procesos recuperados. Cita siempre el ocid de
+    cada proceso que uses. Si los procesos recuperados no contienen la respuesta,
+    indícalo explícitamente en vez de inventar. Los filtros de monto/fecha/departamento/
+    categoría ya se aplicaron antes de la búsqueda semántica: no los cuestiones.
+
+pricing:
+  llm_input_per_1m_usd: 0.15
+  llm_output_per_1m_usd: 0.60
+  embeddings_local_per_1m_usd: 0.0
 
 risk_indicator:
   min_processes_per_entity: 5  # umbral mínimo para reportar share de monopostor (justificar en README)
@@ -83,3 +104,4 @@ risk_indicator:
 logging:
   acquisition_log_file: "logs/acquisition_log.csv"
   quality_report_file: "data/outputs/data_quality_report.csv"
+  costs_log_file: "logs/costs.csv"

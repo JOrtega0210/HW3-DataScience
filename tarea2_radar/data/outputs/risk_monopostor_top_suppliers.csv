@@ -1,0 +1,11 @@
+supplier_name,is_company,total_awarded_processes,single_bidder_processes,single_bidder_share
+(persona natural #1 — nombre no publicado),False,12,12,1.0
+(persona natural #2 — nombre no publicado),False,11,11,1.0
+(persona natural #3 — nombre no publicado),False,9,9,1.0
+SISTEMAS ORACLE DEL PERU S.R.L.,True,8,8,1.0
+(persona natural #4 — nombre no publicado),False,6,6,1.0
+FRESENIUS MEDICAL CARE DEL PERU S.A.,True,6,5,0.8333
+(persona natural #5 — nombre no publicado),False,5,4,0.8
+JCDECAUX PERU S.A.C.,True,5,4,0.8
+GEN LAB DEL PERU S.A.C.,True,8,6,0.75
+H REPS S.A.C.,True,13,9,0.6923
