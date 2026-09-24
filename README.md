@@ -558,8 +558,35 @@ Ver [`docs/pipeline.md`](docs/pipeline.md) para los diagramas offline/online de 
 
 ## Resultados
 
-_Pendiente — tabla de source check, comparación de embeddings, Recall@k, indicador de
-riesgo monopostor y log de costos se agregan a medida que cada fase se completa._
+Resumen de los números clave; el detalle completo (con hallazgos y limitaciones)
+está en la sección de cada fase más arriba.
+
+**Tarea 1 — RAG Normativo**
+
+| Métrica | Resultado |
+|---|---|
+| Source check | Ley 32069: 36 pág. / 316,158 caracteres · DS 001-2026-EF: 16 pág. / 134,755 caracteres · 0 páginas sin texto extraíble |
+| Chunking | `config_a` (96 tok): 890 chunks · `config_b` (120 tok, activa): 788 chunks |
+| Recall@1 / @3 / @5 (local, `config_b`) | 0.438 / 0.750 / 0.750 |
+| Recall@1 / @3 / @5 (OpenAI, `config_b`) | 0.375 / 0.750 / 0.875 (sin ganador universal, ver Fase 4) |
+| Threshold de abstención | 0.60 (calibrado con sweep sobre 21 preguntas) |
+| Costo real por consulta (Gemini) | ~USD 0.0002–0.0006; USD 0.00 en abstenciones |
+
+**Tarea 2 — RAG Radar**
+
+| Métrica | Resultado |
+|---|---|
+| Adquisición | 20,441 procesos (3 meses) + 1,309–1,312 (API reciente) |
+| Validación | 884 duplicados reales removidos → ~20,870 filas finales |
+| Departamentos representados | 25 / 25 |
+| Recall@1 / @3 / @5 (RAG híbrido) | 0.250 / 0.333 / 0.417 |
+| Threshold de abstención | 0.45 (recalibrado — el de la Tarea 1 no transfiere) |
+| Indicador de riesgo monopostor | Tumbes 36.7%, Lima 30.2% (top departamentos) |
+| Costo real por consulta (Gemini) | ~USD 0.0004–0.0008 |
+
+Los reportes fuente (CSV) de cada número están en `eval/results/`,
+`data/processed/reports/` y `data/outputs/` de cada tarea; los logs de costo
+con llamadas reales están en `logs/costs.csv`.
 
 ## Checklist de avance
 
