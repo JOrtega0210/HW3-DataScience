@@ -1,8 +1,10 @@
 # HW_03 — Normative RAG and Public Procurement Radar
 
-Proyecto integrador (curso Data Science, D2CML) que aplica Retrieval-Augmented
+Proyecto integrador que aplica Retrieval-Augmented
 Generation (RAG) al dominio de contrataciones públicas en Perú, a través de dos
 productos conectados.
+
+Integrantes: Joaquin Ortega y Sergio Giraldo
 
 - **Tarea 1 — RAG Normativo** (`tarea1_rag_normativo/`): asistente que responde
   preguntas sobre normas de contrataciones públicas citando documento y página,
@@ -11,10 +13,6 @@ productos conectados.
   de contrataciones estatales (portal OECE), combinando filtros estructurados con
   búsqueda semántica sobre descripciones de procesos, y reutilizando el motor de
   embeddings de la Tarea 1.
-
-## Video de presentación
-
-[Enlace pendiente de agregar tras la grabación] (≤12 minutos).
 
 ## Estructura del repositorio
 
