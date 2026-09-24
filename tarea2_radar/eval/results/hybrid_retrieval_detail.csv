@@ -1,13 +1,13 @@
 question_id,question,filters,n_candidates_after_filter,expected_ocid,top1_ocid,top1_similarity,hit_at_1,hit_at_3,hit_at_5
-h01,¿Hay algún proceso para el reemplazo del puente San Francisco en la red vial nacional?,{},20866,ocds-dgv273-seacev3-1223357,ocds-dgv273-seacev3-1223357,0.6941,True,True,True
-h02,¿Qué proceso busca adquirir tramadol clorhidrato para el Hospital Cayetano Heredia?,{},20866,ocds-dgv273-seacev3-1226639,ocds-dgv273-seacev3-1226639,0.7562,True,True,True
-h03,¿Hay alguna contratación para traslado aéreo en avión ambulancia de pacientes asegurados?,{},20866,ocds-dgv273-seacev3-1226672,ocds-dgv273-seacev3-1222576,0.7234,False,False,False
-h04,¿Qué proceso es para el mejoramiento del sistema de agua potable y alcantarillado en San Sebastián de Choropampa?,{},20866,ocds-dgv273-seacev3-1232388,ocds-dgv273-seacev3-1245724,0.7926,False,False,False
-h05,¿Hay un proceso de alquiler de laptops para la evaluación nacional de logros de aprendizaje del MINEDU?,{},20866,ocds-dgv273-seacev3-2026-10189-6,ocds-dgv273-seacev3-2026-10189-6,0.6382,True,True,True
-h06,¿Qué proceso adquiere vestuario para la oficina de seguridad ciudadana de la Municipalidad Provincial de Mariscal Nieto?,{},20866,ocds-dgv273-seacev3-1226593,ocds-dgv273-seacev3-1221190,0.6961,False,False,False
-h07,¿Hay alguna contratación para el mantenimiento y pintado del estadio Mariano Melgar?,{},20866,ocds-dgv273-seacev3-1225455,ocds-dgv273-seacev3-1241510,0.6376,False,False,False
-h08,¿Qué proceso contrata la suscripción anual a bibliotecas virtuales para institutos de educación superior?,{},20866,ocds-dgv273-seacev3-1228182,ocds-dgv273-seacev3-2026-10455-1,0.6524,False,False,False
-h09,¿Hay un proceso para adquirir combustible para maquinaria cerca al penal de Yanamilla?,{},20866,ocds-dgv273-seacev3-1226224,ocds-dgv273-seacev3-1241053,0.6565,False,False,False
-h10,¿Qué proceso del Gobierno Regional de Cusco compra madera para encofrado del sistema de agua potable y desagüe en Huaro?,{},20866,ocds-dgv273-seacev3-1227495,ocds-dgv273-seacev3-1243154,0.7512,False,True,True
-h11,¿Hay una contratación de vehículos de seguridad ciudadana para la provincia de Carabaya?,{},20866,ocds-dgv273-seacev3-1226492,ocds-dgv273-seacev3-1230367,0.6937,False,False,False
+h01,¿Hay algún proceso para el reemplazo del puente San Francisco en la red vial nacional?,{},20870,ocds-dgv273-seacev3-1223357,ocds-dgv273-seacev3-1223357,0.6941,True,True,True
+h02,¿Qué proceso busca adquirir tramadol clorhidrato para el Hospital Cayetano Heredia?,{},20870,ocds-dgv273-seacev3-1226639,ocds-dgv273-seacev3-1226639,0.7562,True,True,True
+h03,¿Hay alguna contratación para traslado aéreo en avión ambulancia de pacientes asegurados?,{},20870,ocds-dgv273-seacev3-1226672,ocds-dgv273-seacev3-1222576,0.7234,False,False,False
+h04,¿Qué proceso es para el mejoramiento del sistema de agua potable y alcantarillado en San Sebastián de Choropampa?,{},20870,ocds-dgv273-seacev3-1232388,ocds-dgv273-seacev3-1245724,0.7926,False,False,False
+h05,¿Hay un proceso de alquiler de laptops para la evaluación nacional de logros de aprendizaje del MINEDU?,{},20870,ocds-dgv273-seacev3-2026-10189-6,ocds-dgv273-seacev3-2026-10189-6,0.6382,True,True,True
+h06,¿Qué proceso adquiere vestuario para la oficina de seguridad ciudadana de la Municipalidad Provincial de Mariscal Nieto?,{},20870,ocds-dgv273-seacev3-1226593,ocds-dgv273-seacev3-1221190,0.6961,False,False,False
+h07,¿Hay alguna contratación para el mantenimiento y pintado del estadio Mariano Melgar?,{},20870,ocds-dgv273-seacev3-1225455,ocds-dgv273-seacev3-1241510,0.6376,False,False,False
+h08,¿Qué proceso contrata la suscripción anual a bibliotecas virtuales para institutos de educación superior?,{},20870,ocds-dgv273-seacev3-1228182,ocds-dgv273-seacev3-2026-10455-1,0.6524,False,False,False
+h09,¿Hay un proceso para adquirir combustible para maquinaria cerca al penal de Yanamilla?,{},20870,ocds-dgv273-seacev3-1226224,ocds-dgv273-seacev3-1241053,0.6565,False,False,False
+h10,¿Qué proceso del Gobierno Regional de Cusco compra madera para encofrado del sistema de agua potable y desagüe en Huaro?,{},20870,ocds-dgv273-seacev3-1227495,ocds-dgv273-seacev3-1243154,0.7512,False,True,True
+h11,¿Hay una contratación de vehículos de seguridad ciudadana para la provincia de Carabaya?,{},20870,ocds-dgv273-seacev3-1226492,ocds-dgv273-seacev3-1230367,0.6937,False,False,False
 h12,¿Qué obra hay sobre mejoramiento de un parque central?,"{""departamento"": ""Piura"", ""categoria"": ""works""}",119,ocds-dgv273-seacev3-1250498,ocds-dgv273-seacev3-1222774,0.4657,False,False,True

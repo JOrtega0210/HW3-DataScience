@@ -60,11 +60,17 @@ def find_duplicate_groups(rows: list[dict]) -> dict[tuple, list[str]]:
 
 
 def _completeness_score(row: dict) -> tuple:
-    """Mayor score = registro más completo/reciente dentro de un grupo duplicado."""
+    """Mayor score = registro más completo/reciente dentro de un grupo duplicado.
+    Incluye el ocid como último criterio (desempate) para que el resultado sea
+    determinístico entre corridas: `set()`/hashing de strings en Python no
+    garantiza el mismo orden de iteración en dos procesos distintos, así que
+    sin este desempate explícito el "sobreviviente" de un grupo duplicado podía
+    cambiar de una corrida a otra sin que cambiaran los datos."""
     return (
         row.get("number_of_tenderers") is not None,
         row.get("num_awards", 0) > 0,
         row.get("award_supplier_names") is not None,
+        row["ocid"],
     )
 
 
@@ -80,7 +86,7 @@ def resolve_duplicates(
     removed_log: list[dict] = []
 
     for key, ocids in duplicate_groups.items():
-        candidates = [by_ocid[o] for o in set(ocids) if o in by_ocid]
+        candidates = [by_ocid[o] for o in dict.fromkeys(ocids) if o in by_ocid]
         if len(candidates) < 2:
             continue
         candidates.sort(key=_completeness_score, reverse=True)

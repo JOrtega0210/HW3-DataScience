@@ -1,7 +1,7 @@
 rule,flagged_count,action_taken
-registros_repetidos_mismo_proceso,884,se conservó el registro más completo por grupo y se descartó el resto (884 de 21750 filas); detalle en duplicates_removed.csv
+registros_repetidos_mismo_proceso,882,se conservó el registro más completo por grupo y se descartó el resto (882 de 21752 filas); detalle en duplicates_removed.csv
 proceso_sin_monto,0,ninguna (0 casos); se deja el campo null si volviera a ocurrir
-proceso_monto_cero,3419,se conserva la fila (monto 0 es válido en catálogos/convenios); se documenta para no inflar promedios sin advertencia
+proceso_monto_cero,3412,se conserva la fila (monto 0 es válido en catálogos/convenios); se documenta para no inflar promedios sin advertencia
 proceso_sin_descripcion,0,"ninguna (0 casos); si ocurriera, se excluiría del índice RAG híbrido (Fase 3) por falta de texto para embeber"
 ubicacion_no_es_departamento,0,se deja buyer_department=null y se reporta en unmatched_locations.csv (no se descarta la fila)
 inconsistencia_encoding_acentos,0,ninguna (0 casos detectados en tender_title/tender_description/buyer_name)

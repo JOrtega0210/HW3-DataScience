@@ -329,6 +329,13 @@ offset manualmente. Verificado con curl antes y después del fix.
 | API actualizaciones recientes (7 días) | 1,309 | 67 (+66 desde caché en la 2ª corrida) | 6.0 MB | 41.5 s |
 | **Combinado (una fila por `ocid`)** | **21,750** | | | |
 
+> Nota: la ventana de "últimos 7 días" de `--stage recent` es relativa a la
+> fecha de corrida, así que estos conteos crecen unas pocas decenas cada vez
+> que se re-ejecuta el pipeline (verificado: 21,752 en una corrida posterior,
+> el mismo día siguiente). Los números de esta sección quedan fijados a la
+> corrida original citada; los conteos "vivos" actuales están en
+> `data/outputs/acquisition_summary.csv` y `data/processed/processes_validated.csv`.
+
 Ambos mecanismos son **re-ejecutables sin duplicar**: `--stage bulk` no vuelve a
 descargar un mes ya extraído en `data/raw/extracted/`; `--stage recent` cachea
 cada página de la API en `data/raw/api_cache/` y una segunda corrida no genera
@@ -369,6 +376,20 @@ interno nuevo para el mismo proceso real en una etapa posterior). Norma
 aplicada: se conserva el registro con más campos poblados (heurística de
 completitud: `numberOfTenderers` no nulo, tiene adjudicación, tiene proveedor
 adjudicado), nunca se combinan/promedian silenciosamente.
+
+**Bug real encontrado al re-correr el pipeline para verificar (no al escribir el
+código):** la resolución de duplicados no era determinística entre corridas.
+`resolve_duplicates()` armaba los candidatos con `set(ocids)`, y el orden de
+iteración de un `set` de strings en Python depende del hash de cada string,
+que se aleatoriza por proceso (`PYTHONHASHSEED`) — así que el "sobreviviente"
+de un grupo duplicado podía cambiar de una corrida a otra **sin que cambiaran
+los datos**, invalidando silenciosamente cualquier `ocid` de referencia
+guardado en otro lado (ej. el conjunto de evaluación de la Fase 3, que
+apuntaba a un `ocid` que dejó de existir tras una nueva corrida). Se corrigió
+con `dict.fromkeys(ocids)` (preserva orden de inserción, determinístico) y
+agregando el propio `ocid` como último criterio de desempate en
+`_completeness_score()`. Verificado corriendo `validate_data.py` dos veces
+seguidas y comparando el archivo de salida byte a byte: idéntico.
 
 **Normalización territorial:** `buyer.address.department` del estándar OCDS
 peruano ya viene generado por una extensión propia (`ocds_department_extension`)
