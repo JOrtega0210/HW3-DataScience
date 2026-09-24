@@ -1,8 +1,7 @@
 # Pipelines
 
-Diagramas de los pipelines offline/online de ambas tareas. Se completan a medida que se
-implementa cada fase; sirven de base para la sección "Pipeline Task 1/2" del video (regla
-pipeline-primero).
+Diagramas de los flujos offline (indexación/preparación de datos) y online
+(consultas) de ambas tareas.
 
 ## Tarea 1 — RAG Normativo
 
@@ -11,22 +10,22 @@ flowchart LR
     subgraph Offline["Offline: indexación (build_index.py)"]
         A[PDFs oficiales] --> B[Extracción con page numbers]
         B --> C[Limpieza de headers]
-        C --> D[Chunking configs A/B]
+        C --> D["Chunking: 96 / 120 tokens"]
         D --> E[Embeddings locales]
-        E --> F[(Índice vectorial)]
+        E --> F[(Índice vectorial FAISS)]
     end
     subgraph Online["Online: consultas (app.py)"]
-        G[Pregunta usuario] --> H[Embedding de la query]
-        H --> I{similitud >= threshold?}
+        G[Pregunta del usuario] --> H[Embedding de la consulta]
+        H --> I{"similitud >= 0.60?"}
         I -- no --> J[Abstención]
-        I -- sí --> K[Top-k fragmentos + metadata]
+        I -- sí --> K[Top-5 fragmentos + metadata]
         K --> L[LLM genera respuesta citada]
     end
     F --> I
 ```
 
-_Pendiente: completar con decisiones reales (threshold calibrado, tamaños de chunk elegidos)
-una vez cerradas las Fases 2-3._
+Threshold de abstención calibrado en 0.60; configuración de chunking activa
+de 120 tokens con overlap de 30 (ver README, sección Tarea 1).
 
 ## Tarea 2 — RAG Radar
 
@@ -40,9 +39,9 @@ flowchart LR
         C2 --> F2[Indicador monopostor]
     end
     subgraph Online["Online: dashboard (app.py)"]
-        G2[Filtros sidebar] --> H2[Tabla / mapa / distribución]
-        I2[Pregunta en lenguaje natural] --> J2[Embedding + filtros estructurados]
-        J2 --> K2{similitud >= threshold?}
+        G2[Filtros del sidebar] --> H2[Tabla / mapa / distribución]
+        I2[Pregunta en lenguaje natural] --> J2[Filtros estructurados + embedding]
+        J2 --> K2{"similitud >= 0.45?"}
         K2 -- no --> L2[Abstención]
         K2 -- sí --> M2[Procesos recuperados citados por ocid]
     end
@@ -50,4 +49,6 @@ flowchart LR
     F2 --> G2
 ```
 
-_Pendiente: completar con métricas reales de Recall@k y resultado del indicador de riesgo._
+Threshold de abstención calibrado en 0.45 (ver README, sección Tarea 2, para
+la justificación de por qué el threshold de la Tarea 1 no transfiere a esta
+escala).

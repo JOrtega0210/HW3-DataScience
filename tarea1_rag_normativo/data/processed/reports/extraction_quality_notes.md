@@ -1,6 +1,6 @@
 # Notas de calidad — limpieza de extracción (Tarea 1, Fase 1)
 
-Complementa `extraction_quality.csv`. Generado a partir de la corrida real de
+Complementa `extraction_quality.csv`. Generado ejecutando
 `build_index.py --stage clean` sobre `ley_32069` y `ds_001_2026_ef`.
 
 ## Limpieza aplicada

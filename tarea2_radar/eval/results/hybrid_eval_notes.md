@@ -15,9 +15,9 @@ procesos). Ninguna métrica de esta fase llama al LLM (solo retrieval).
 Sensiblemente más bajo que en la Tarea 1 (Recall@5 ≈ 0.75-0.81 allí). Detalle
 completo en `eval/results/hybrid_retrieval_detail.csv`.
 
-## Hallazgo real: boilerplate burocrático confunde al embedding a esta escala
+## Limitación identificada: lenguaje burocrático repetitivo a esta escala
 
-Caso diagnosticado en detalle: la pregunta *"¿Qué proceso es para el
+Caso analizado en detalle: la pregunta *"¿Qué proceso es para el
 mejoramiento del sistema de agua potable y alcantarillado en San Sebastián de
 Choropampa?"* (Cajamarca) recuperó como top-1 un proceso **distinto**, sobre
 mejoramiento de agua potable en otra localidad (Shitac, también en Cajamarca),
@@ -27,7 +27,7 @@ MEJORAMIENTO... DEL SISTEMA DE AGUA POTABLE...") y solo difieren en los nombres
 de localidad — nombres de centros poblados pequeños que el modelo multilingüe
 no discrimina bien (son poco frecuentes en su entrenamiento).
 
-**Se probó si el filtro de departamento arregla esto:** con `departamento:
+**Efecto del filtro de departamento:** con `departamento:
 Cajamarca` los candidatos bajan de 20,866 a 874, pero el mismo proceso
 incorrecto sigue ganando (también es de Cajamarca) — el filtro por departamento
 reduce el universo de búsqueda pero no alcanza a discriminar dentro de un
@@ -36,9 +36,9 @@ idéntico. Con corpus de este tamaño y este nivel de repetición textual, ni el
 retrieval semántico puro ni el filtro territorial por sí solos garantizan
 precisión a nivel de proceso exacto.
 
-## Hallazgo real, más severo que en Tarea 1: el threshold no separa in-domain de out-of-domain
+## Limitación identificada: el threshold no separa in-domain de out-of-domain
 
-Se probaron preguntas claramente fuera de dominio:
+Se evaluaron preguntas claramente fuera de dominio:
 
 | Pregunta | Similitud top-1 |
 |---|---|

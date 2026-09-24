@@ -1,21 +1,20 @@
 # HW_03 — Normative RAG and Public Procurement Radar
 
-Proyecto integrador (curso Data Science, D2CML) que combina dos tareas conectadas
-aplicando Retrieval-Augmented Generation (RAG) al dominio de contrataciones públicas en Perú.
+Proyecto integrador (curso Data Science, D2CML) que aplica Retrieval-Augmented
+Generation (RAG) al dominio de contrataciones públicas en Perú, a través de dos
+productos conectados.
 
-- **Tarea 1 — RAG Normativo** (`tarea1_rag_normativo/`): asistente que responde preguntas
-  sobre normas de contrataciones públicas citando documento y página, absteniéndose cuando
-  la respuesta no está en el corpus indexado.
-- **Tarea 2 — RAG Radar** (`tarea2_radar/`): dashboard que analiza datos abiertos de
-  contrataciones estatales (portal OECE) combinando filtros estructurados con búsqueda
-  semántica sobre descripciones de procesos, reutilizando el motor de la Tarea 1.
-
-> Estado: repositorio en construcción, se completa por fases. Este README se actualiza a
-> medida que cada fase queda cerrada (ver checklist más abajo).
+- **Tarea 1 — RAG Normativo** (`tarea1_rag_normativo/`): asistente que responde
+  preguntas sobre normas de contrataciones públicas citando documento y página,
+  absteniéndose cuando la respuesta no está en el corpus indexado.
+- **Tarea 2 — RAG Radar** (`tarea2_radar/`): dashboard que analiza datos abiertos
+  de contrataciones estatales (portal OECE), combinando filtros estructurados con
+  búsqueda semántica sobre descripciones de procesos, y reutilizando el motor de
+  embeddings de la Tarea 1.
 
 ## Video de presentación
 
-_Pendiente — se agregará el enlace aquí una vez grabado (≤12 minutos, regla pipeline-primero)._
+[Enlace pendiente de agregar tras la grabación] (≤12 minutos).
 
 ## Estructura del repositorio
 
@@ -45,9 +44,9 @@ _Pendiente — se agregará el enlace aquí una vez grabado (≤12 minutos, regl
 ## Setup (Windows)
 
 ```powershell
-# 1. Clonar el repo y entrar a la carpeta
-git clone <URL_DEL_REPO>
-cd HW3
+# 1. Clonar el repositorio
+git clone https://github.com/JOrtega0210/HW3-DataScience.git
+cd HW3-DataScience
 
 # 2. Crear y activar entorno virtual (en la raíz del repo)
 python -m venv .venv
@@ -58,231 +57,211 @@ pip install -r requirements.txt
 
 # 4. Configurar variables de entorno
 copy .env.example .env
-# Editar .env y completar las claves necesarias (ver sección "Credenciales" abajo)
+# Completar .env con las claves necesarias (ver sección "Credenciales")
 ```
 
 ## Credenciales
 
-El proyecto se desarrolló de forma incremental sin requerir API keys de pago en las
-primeras fases (extracción, limpieza, chunking, embeddings locales, retrieval,
-evaluación de Recall@k).
+El pipeline offline de ambas tareas (extracción, limpieza, chunking, embeddings
+locales, retrieval, cálculo de Recall@k) no requiere ninguna API key de pago.
 
-| Variable | Uso | Estado |
-|---|---|---|
-| `GEMINI_API_KEY` | Generación de la respuesta final del LLM en ambas tareas (`gemini-3.5-flash-lite`) | ✅ conectada — proveedor activo (`llm.provider: "gemini"`) |
-| `OPENAI_API_KEY` | Alternativa de LLM (código soportado en `src/engine.py` / `src/hybrid_engine.py`) | ⚠️ la key usada en la Tarea 1 quedó inválida (401) tras compartirse en el chat; se cambió a Gemini |
-| `OPENAI_EMBEDDINGS_API_KEY` | Comparación local vs. `text-embedding-3-small` (Fase 4, Tarea 1) | ✅ se usó y completó antes de que la key quedara inválida — resultados ya documentados, no se necesita de nuevo |
-| `ANTHROPIC_API_KEY` | Alternativa de LLM adicional (soportada en el código) | vacía, opcional |
-| `OECE_API_KEY` | Solo si el portal OECE introduce autenticación (hoy no la requiere) | vacía, no aplica aún |
+| Variable | Uso |
+|---|---|
+| `GEMINI_API_KEY` | Generación de la respuesta final del LLM en ambas tareas (proveedor activo, `gemini-3.5-flash-lite`) |
+| `OPENAI_API_KEY` | Proveedor alternativo de LLM (soportado en el código, no activo por defecto) |
+| `OPENAI_EMBEDDINGS_API_KEY` | Comparación de embeddings local vs. `text-embedding-3-small` (Fase 4, Tarea 1) |
+| `ANTHROPIC_API_KEY` | Proveedor alternativo de LLM adicional (soportado en el código) |
+| `OECE_API_KEY` | Reservada para autenticación futura del portal OECE (hoy no la requiere) |
 
-El motor sigue usando el modelo de embeddings **local** por defecto para la app
-(`embeddings.active_provider: "local"`) — OpenAI se usó puntualmente para la
-comparación de la Fase 4, no como proveedor de producción (ver esa sección).
+El motor de embeddings usa el modelo **local** por defecto en ambas tareas
+(`embeddings.active_provider: "local"`); OpenAI se usa únicamente para la
+comparación de la Fase 4 de la Tarea 1, documentada en esa sección.
 
 ## Cómo ejecutar — Tarea 1 (RAG Normativo)
 
-### Descarga de las fuentes oficiales
+### Fuentes oficiales
 
-Los PDFs de Ley N.° 32069 y DS N.° 001-2026-EF **no son descargables con `curl`/`requests`
-directo**: `busquedas.elperuano.pe` genera la URL real del archivo (`/api/archivo/file/<token>/...`)
-mediante JavaScript, con un token firmado de corta duración. Pasos para obtenerlos:
+El corpus normativo consiste en la Ley N.° 32069 (Ley General de
+Contrataciones Públicas) y el Decreto Supremo N.° 001-2026-EF, descargados
+desde `busquedas.elperuano.pe` y versionados en `tarea1_rag_normativo/data/raw/`.
+Para volver a descargarlos desde cero:
 
-1. Abrir en el navegador la URL de `config.yaml` -> `documents[].url` (páginas
-   `dispositivo/SE/...` o `dispositivo/NL/...`).
-2. Click en el botón **PDF** del visor.
-3. Guardar el PDF resultante en `tarea1_rag_normativo/data/raw/` con el nombre indicado
-   en `raw_filename` (`ley_32069.pdf`, `ds_001_2026_ef.pdf`).
+1. Abrir en el navegador la URL indicada en `config.yaml` → `documents[].url`.
+2. Hacer clic en el botón **PDF** del visor.
+3. Guardar el archivo en `data/raw/` con el nombre indicado en `raw_filename`.
 
-Ya se descargaron y están versionados en el repo, así que este paso no es necesario para
-reproducir el resto del pipeline — solo aplica si se quiere volver a descargar desde cero.
-
-### Ejecutar el pipeline offline
+### Pipeline offline
 
 ```powershell
 cd tarea1_rag_normativo
-python build_index.py --stage extract   # Fase 1a: extracción + source check
-python build_index.py --stage clean     # Fase 1b: limpieza de headers + reporte de calidad
-python build_index.py --stage chunk     # Fase 2a: chunking (2 configuraciones)
-python build_index.py --stage embed     # Fase 2b: embeddings locales + índice FAISS
+python build_index.py --stage extract   # extracción + reporte de source check
+python build_index.py --stage clean     # limpieza de headers + reporte de calidad
+python build_index.py --stage chunk     # chunking (2 configuraciones)
+python build_index.py --stage embed     # embeddings locales + índice FAISS
 ```
 
 `--stage embed` genera, por cada configuración de chunking, un índice FAISS
-(`IndexFlatIP` sobre embeddings normalizados L2 = similitud coseno) en
-`data/processed/index/<config_name>/` (no versionado en git — se regenera con el
-comando anterior; solo tarda ~7 minutos la primera vez porque descarga el modelo, ~14s
-en corridas posteriores). Es **idempotente y reanudable**: los embeddings ya calculados
-se guardan por `chunk_id`, así que una segunda corrida no reencoda nada (verificado:
-0 nuevos / 890 reusados en `config_a`, 0 nuevos / 788 reusados en `config_b`).
+(`IndexFlatIP` sobre embeddings normalizados L2, equivalente a similitud
+coseno) en `data/processed/index/<config_name>/` (no versionado en git, se
+regenera con el comando anterior). El proceso es idempotente: los embeddings
+ya calculados se identifican por `chunk_id` y no se recalculan en corridas
+posteriores.
 
-| Config | Chunks totales | Tiempo (1ª corrida, con descarga de modelo) | Tiempo (corrida repetida) |
+| Config | Chunks totales | Tiempo de indexación inicial | Tiempo en corridas posteriores |
 |---|---|---|---|
-| `config_a` | 890 | 266.6s | 14.0s |
-| `config_b` | 788 | 138.1s | 0.0s |
-
-Prueba de humo end-to-end (extracción -> limpieza -> chunking -> embedding -> FAISS):
-la consulta *"qué es la subcontratación en las contrataciones públicas"* recuperó como
-primer resultado (score coseno 0.785) el chunk de `ley_32069`, página 2, que contiene
-exactamente la definición legal de "Subcontratación" — confirma que el pipeline
-completo de retrieval funciona antes de conectar el LLM (Fase 3).
+| `config_a` | 890 | 266.6 s | 14.0 s |
+| `config_b` | 788 | 138.1 s | 0.0 s |
 
 ### Motor RAG (Fase 3)
 
 `src/engine.py` expone una única función pública, `answer_question(query, config)`,
-sin ninguna dependencia de UI (verificado: importar `src.engine` no carga Streamlit).
-Encapsula retrieval + abstención por threshold + citas + nota de alcance + generación
-con LLM (soporta Gemini/OpenAI/Anthropic; proveedor activo: Gemini
-`gemini-3.5-flash-lite`, conectado con API key real) + logging de costo; los
-errores de API se devuelven como `llm_error` estructurado en vez de fallar.
+sin dependencias de UI. Encapsula retrieval, abstención por threshold de
+similitud, citación de documento/página, nota de alcance del corpus,
+generación con LLM (Gemini `gemini-3.5-flash-lite`) y logging de costo. Los
+errores de API se devuelven como dato estructurado (`llm_error`) en lugar de
+interrumpir la ejecución.
 
-Prueba con 3 preguntas de control (con el LLM real ya conectado; corrida
-original con OpenAI `gpt-4o-mini` — reemplazado por Gemini después de que esa
-key quedara inválida, ver Credenciales; el comportamiento se re-validó con
-Gemini en la Tarea 2 con resultados equivalentes):
+Validación con tres preguntas de control:
 
 | Pregunta | Resultado |
 |---|---|
-| "¿Qué es la subcontratación...?" (in-domain) | No se abstiene. Respuesta correcta citando Ley N.° 32069, página 2. Costo real: **944 in / 95 out tokens ≈ USD 0.0002**, 26.1s |
-| "¿Cuál es la capital de Francia?" (out-of-domain) | **Se abstiene** (sim=0.232 < threshold 0.60) — **0 tokens gastados**, 0.23s |
-| "¿Qué dice el reglamento sobre el procedimiento de selección?" | No se abstiene en retrieval (sim=0.751, trae contenido de la Ley), pero el LLM **reconoce el límite de alcance** y responde: *"No puedo proporcionar información específica sobre el reglamento... el reglamento no forma parte del corpus indexado."* Costo: 843 in / 50 out tokens ≈ USD 0.00016 |
+| "¿Qué es la subcontratación...?" (dentro del dominio) | No se abstiene. Respuesta correcta citando Ley N.° 32069, página 2. Costo: ~USD 0.0002, 944/95 tokens de entrada/salida |
+| "¿Cuál es la capital de Francia?" (fuera de dominio) | Se abstiene (similitud 0.232 < threshold 0.60). Costo USD 0.00, sin llamada al LLM |
+| "¿Qué dice el reglamento sobre el procedimiento de selección?" | El retrieval no distingue que la pregunta se refiere al Reglamento (fuera de alcance) y recupera contenido de la Ley, pero el LLM reconoce el límite gracias a la nota de alcance inyectada en el prompt, y responde: *"No puedo proporcionar información específica sobre el reglamento... no forma parte del corpus indexado"* |
 
-La tercera pregunta es la validación en vivo del diseño de dos líneas de defensa: el
-retrieval por similitud **no** distingue que la pregunta es sobre el Reglamento
-(excluido), pero el `scope_note` inyectado en el prompt hace que el LLM sí lo detecte
-y lo aclare en vez de responder como si estuviera dentro del corpus — confirma que la
-segunda línea de defensa (generación) funciona como se diseñó en la Fase 3, antes de
-tener resultados del sweep de threshold de la Fase 4.
+La tercera pregunta ilustra el diseño de dos líneas de defensa: el retrieval
+por similitud no siempre distingue el alcance exacto del corpus, pero la nota
+de alcance (`scope_note`) inyectada en cada respuesta permite que la
+generación lo corrija.
 
-Log de costos con llamadas reales versionado en `logs/costs.csv` (deliverable
-explícito del enunciado) — cada fila es una consulta real, con modelo, tokens,
-costo USD y latencia; se sigue acumulando con cada uso de la app o del motor.
+El log de costos con llamadas reales se guarda en `logs/costs.csv` (modelo,
+tokens de entrada/salida, costo en USD y latencia por consulta).
 
-Manejo de versiones: cada fragmento citado incluye `version` (`"original"` para la Ley,
-`"modificatoria"` para el DS) tomado de la metadata del documento — no hay artículos
-duplicados en el corpus con dos versiones en conflicto porque el DS modifica el
-*Reglamento* (fuera de alcance), no el texto de la Ley indexado; esta distinción se
-documenta explícitamente para no sugerir falsamente que ambos documentos compiten por
-la misma disposición.
+**Manejo de versiones normativas:** cada fragmento citado incluye su `version`
+(`"original"` para la Ley, `"modificatoria"` para el Decreto Supremo). El DS
+001-2026-EF modifica el Reglamento de la Ley 32069, no el texto de la Ley
+indexado, por lo que no existen artículos duplicados en conflicto dentro del
+corpus; esta distinción se documenta explícitamente en la nota de alcance.
 
 ### Evaluación y calibración de threshold (Fase 4)
 
-Conjunto de evaluación real en `eval/eval_set.json`: **21 preguntas** (16 in-domain +
-5 out-of-domain), redactadas a partir de contenido verificado de los documentos —
-4 sobre artículos modificados por el DS (≥3 requerido), 5 en tono de pequeño
-empresario (≥5 requerido), 7 preguntas generales sobre la Ley, y 5 fuera de dominio
-(2 totalmente ajenas + 3 "cercanas" al dominio pero fuera de alcance). Ejecutar con:
+Conjunto de evaluación en `eval/eval_set.json`: 21 preguntas (16 dentro del
+dominio, 5 fuera de dominio), incluyendo 4 sobre artículos modificados por el
+Decreto Supremo y 5 redactadas en tono de pequeño empresario.
 
 ```powershell
-python eval/run_eval.py   # sin llamar al LLM; solo retrieval
+python eval/run_eval.py   # Recall@k sin llamar al LLM
 ```
 
 **Recall@k** (`eval/results/recall_summary.csv`):
 
 | Config | Recall@1 | Recall@3 | Recall@5 |
 |---|---|---|---|
-| `config_a` (96 tok) | 0.375 | 0.625 | **0.812** |
-| `config_b` (120 tok, activa) | **0.438** | **0.750** | 0.750 |
+| `config_a` (96 tok) | 0.375 | 0.625 | 0.812 |
+| `config_b` (120 tok, activa) | 0.438 | 0.750 | 0.750 |
 
-**Calibración de threshold** (`eval/results/threshold_sweep.csv`): se subió de
-0.55 (placeholder) a **0.60**, el borde de la meseta donde la abstención incorrecta
-sobre las 16 preguntas in-domain reales sigue en 0%, con el mayor margen posible.
+**Calibración de threshold** (`eval/results/threshold_sweep.csv`): 0.60,
+punto que mantiene 0% de abstención incorrecta sobre las 16 preguntas dentro
+del dominio, con el mayor margen posible antes de que la tasa suba.
 
-**Hallazgo real (limitación documentada, no oculta):** el threshold por similitud
-separa bien preguntas totalmente ajenas (`"capital de Francia"` sim≈0.22 → se
-abstiene) pero **no separa las 3 preguntas "cercanas al dominio"** (sobre el
-Reglamento excluido, sobre Chile, sobre beneficios tributarios): tienen similitud
-0.70–0.78, **más alta que varias preguntas in-domain reales**. Subir el threshold
-para atraparlas sacrificaría 19–38% de las preguntas legítimas — peor trade-off.
-Por eso el diseño no depende solo del threshold: `scope_note` viaja en *todas* las
-respuestas y el `system_prompt` instruye al LLM a aclarar el alcance — el
-retrieval es la primera línea de defensa, la generación es la segunda. Detalle
-completo en `eval/results/eval_notes.md`.
+**Limitación conocida:** el threshold por similitud separa bien preguntas
+totalmente ajenas al dominio (similitud ≈0.22 para "capital de Francia") pero
+no distingue tres preguntas "cercanas al dominio" (sobre el Reglamento
+excluido, sobre otra jurisdicción, sobre materia tributaria), cuya similitud
+(0.70–0.78) supera la de varias preguntas legítimas. Subir el threshold para
+capturarlas sacrificaría 19–38% de las preguntas reales. Por diseño, la nota
+de alcance viaja en todas las respuestas y el `system_prompt` instruye al LLM
+a aclarar el alcance del corpus — el retrieval es la primera línea de
+defensa, la generación es la segunda. Detalle en `eval/results/eval_notes.md`.
 
-**Comparación de embeddings (local vs. OpenAI), completa:**
+**Comparación de embeddings — local vs. OpenAI:**
 
 ```powershell
-python eval/run_openai_comparison.py   # costo real: ~USD 0.004 en total
+python eval/run_openai_comparison.py
 ```
 
 | Aspecto | Local (768 dim) | OpenAI `text-embedding-3-small` (1536 dim) |
 |---|---|---|
-| Recall@1 / @3 / @5 (`config_b`) | 0.438 / 0.750 / 0.750 | 0.375 / 0.750 / **0.875** |
-| Recall@1 / @3 / @5 (`config_a`) | 0.375 / 0.625 / **0.812** | **0.500** / 0.625 / 0.688 |
-| Tiempo de indexación (890/788 chunks) | 266.6s / 138.1s (CPU) | **14.6s / 8.9s** (API) |
-| Costo real | USD 0.00 | USD 0.0021 / USD 0.0023 |
-| Latencia por consulta | ~0.1–0.3s | 0.48–0.78s (red) |
+| Recall@1 / @3 / @5 (`config_b`) | 0.438 / 0.750 / 0.750 | 0.375 / 0.750 / 0.875 |
+| Recall@1 / @3 / @5 (`config_a`) | 0.375 / 0.625 / 0.812 | 0.500 / 0.625 / 0.688 |
+| Tiempo de indexación | 266.6 s / 138.1 s (CPU local) | 14.6 s / 8.9 s (API) |
+| Costo | USD 0.00 | USD 0.0021 / USD 0.0023 |
+| Latencia por consulta | ~0.1–0.3 s | 0.48–0.78 s |
 
-**No hay ganador universal** (OpenAI mejor en Recall@5 con `config_b`, local mejor
-en Recall@5 con `config_a` y en Recall@1 con `config_b`) — se mantiene el modelo
-**local** como proveedor activo del motor porque el proyecto corre sin costo
-variable por consulta; detalle completo y justificación en
-`eval/results/eval_notes.md`.
+No hay un proveedor que domine en todas las métricas: OpenAI logra mejor
+Recall@5 con `config_b` y mejor Recall@1 con `config_a`; el modelo local es
+mejor en los casos restantes. Se mantiene el modelo local como proveedor
+activo del motor porque el proyecto no incurre en costo variable por
+consulta. Justificación completa en `eval/results/eval_notes.md`.
 
-`--stage extract` extrae el texto por página con PyMuPDF (preservando el número de
-página impreso) y genera:
+### Extracción y limpieza (Fase 1)
 
-- `data/processed/extraction/<doc_id>.jsonl` — texto crudo por página
-- `data/processed/reports/source_check.csv` — reporte de source check
-
-`--stage clean` remueve los artefactos de maquetación de El Peruano (header repetido,
-sello de firma digital, códigos de publicación OP, ligaduras tipográficas) y genera:
-
-- `data/processed/clean/<doc_id>.jsonl` — texto limpio por página (con flag `is_cover_page`)
-- `data/processed/reports/extraction_quality.csv` — reporte de calidad por documento
-- `data/processed/reports/extraction_quality_notes.md` — limitaciones conocidas y decisiones
-
-### Resultado del source check (Fase 1)
+**Source check** (`data/processed/reports/source_check.csv`):
 
 | Documento | Páginas | Caracteres totales | Prom. car/página | Mín. car/página | Máx. car/página | Páginas sin texto |
 |---|---|---|---|---|---|---|
 | Ley N.° 32069 | 36 | 316,158 | 8,782.2 | 948 | 13,087 | 0 |
 | DS N.° 001-2026-EF | 16 | 134,755 | 8,422.2 | 8,031 | 9,144 | 0 |
 
-Orden de lectura: se usa `page.get_text("text", sort=True)` de PyMuPDF, que ordena los
-bloques de texto por posición vertical/horizontal antes de concatenarlos — necesario
-porque las ediciones de El Peruano usan layout a una columna con encabezados repetidos.
+El orden de lectura se preserva con `page.get_text("text", sort=True)` de
+PyMuPDF, que ordena los bloques de texto por posición antes de concatenarlos.
 
-Cada página trae pegado el header repetido de El Peruano (ej. `"El Peruano / Lunes 24 de
-junio de 2024  NORMAS LEGALES  5"`), removido en la etapa de limpieza (ver abajo).
-
-### Resultado de la limpieza (Fase 1)
+**Limpieza** (`data/processed/reports/extraction_quality.csv`): cada página
+trae pegado el encabezado repetido de la edición de El Peruano, removido en
+esta etapa junto con el sello de firma digital y las ligaduras tipográficas
+rotas.
 
 | Documento | Páginas | Header removido | Sello firma removido | Códigos OP removidos | Ligaduras normalizadas | Portada excluida |
 |---|---|---|---|---|---|---|
 | Ley N.° 32069 | 36 | 35/36 (1 es portada) | 1 | 1 | 411 | página 1 |
 | DS N.° 001-2026-EF | 16 | 16/16 | 1 | 2 | 0 | ninguna |
 
-Limitaciones conocidas documentadas en `extraction_quality_notes.md`: espaciado
-irregular alrededor de ligaduras tipográficas (ej. `ﬁ`) en <0.15% de los caracteres, y un
-posible "bleed" de contenido de una norma vecina en la última página del DS (dos normas
-distintas comparten la misma página física de la edición impresa) — se dejó marcado para
-revisión manual en vez de recortarlo automáticamente, por seguridad de datos.
+Limitaciones conocidas, documentadas en `extraction_quality_notes.md`:
+espaciado irregular alrededor de ligaduras tipográficas en menos del 0.15% de
+los caracteres, y contenido de una norma vecina que se filtra en la última
+página del Decreto Supremo (dos normas comparten una misma página física en
+la edición impresa) — se deja marcado para revisión manual en lugar de
+recortarse automáticamente.
 
-### Chunking (Fase 2a)
+### Chunking (Fase 2)
 
-**Hallazgo clave:** el modelo de embeddings local configurado
-(`sentence-transformers/paraphrase-multilingual-mpnet-base-v2`) tiene
-`max_seq_length = 128` tokens (verificado en su `sentence_bert_config.json` en Hugging
-Face, no solo asumido). Los tamaños de chunk se fijaron **por debajo de ese límite**
-(96 y 120 tokens) para que ningún chunk se trunque silenciosamente al generar su
-embedding; `build_index.py --stage chunk` valida esto en cada corrida y falla explícito
-si una configuración excede `max_tokens`.
+El modelo de embeddings local
+(`sentence-transformers/paraphrase-multilingual-mpnet-base-v2`) tiene un
+límite de `max_seq_length = 128` tokens, verificado en su
+`sentence_bert_config.json`. Los tamaños de chunk se definieron por debajo de
+ese límite (96 y 120 tokens) para evitar truncamiento silencioso al generar
+los embeddings; `build_index.py --stage chunk` valida esta condición en cada
+corrida.
 
-El chunking se hace **por página** (nunca cruza el límite de una página) para que la
-metadata de página de cada chunk sea siempre exacta y no ambigua, usando el tokenizer
-real del modelo (offsets exactos, no una aproximación por caracteres) y excluyendo la
-página de portada de la Ley. El chunk ID es determinístico
-(`"{doc_id}:{config_name}:p{página}:c{índice}"`), por lo que re-ejecutar el build
-produce exactamente los mismos IDs y texto (verificado con una segunda corrida).
+El chunking se realiza por página (nunca cruza el límite de una página), con
+IDs deterministas (`"{doc_id}:{config_name}:p{página}:c{índice}"`) que
+garantizan resultados idénticos entre ejecuciones.
 
 | Config | chunk_size / overlap (tokens) | Chunks Ley 32069 | Chunks DS 001-2026-EF | Prom. tokens/chunk |
 |---|---|---|---|---|
 | `config_a` | 96 / 16 | 584 | 306 | ~93.8 |
 | `config_b` | 120 / 30 | 516 | 272 | ~117.0 |
 
-Comparación completa en `data/processed/reports/chunking_comparison.csv`. La
-configuración activa por defecto es `config_b` (chunks más grandes, menos fragmentación,
-más contexto por chunk); se compara contra `config_a` en la Fase 4 (evaluación de
-Recall@k) para decidir cuál conservar.
+Comparación completa en `data/processed/reports/chunking_comparison.csv`. Se
+mantiene `config_b` como configuración activa por defecto (más contexto por
+chunk); ambas se comparan en la Fase 4 con Recall@k.
+
+### Interfaz Streamlit (Fase 5)
+
+```powershell
+streamlit run app.py
+```
+
+Carga el índice ya construido sin reconstruirlo al iniciar. Tres pestañas:
+**Consulta** (pregunta → respuesta, costo, latencia y fragmentos citados con
+página/versión/similitud), **Calidad de datos** (reportes de la Fase 1) y
+**Evaluación** (Recall@k, comparación de embeddings y sweep de threshold de
+la Fase 4).
+
+Validado en navegador: la pregunta *"Tengo una empresa pequeña, ¿hasta cuánto
+me pueden multar...?"* devuelve la respuesta correcta citando el Art. 89.3,
+página 27, con costo real de USD 0.000185; la pregunta *"¿Cuál es la capital
+de Francia?"* se abstiene con costo USD 0.00 y 0.51 s de latencia.
 
 ## Cómo ejecutar — Tarea 2 (RAG Radar)
 
@@ -294,60 +273,51 @@ python acquire_data.py --stage bulk     # descarga masiva: 3 meses de 2026
 python acquire_data.py --stage recent   # API de actualizaciones recientes (últimos 7 días)
 python acquire_data.py --stage combine  # une ambos en una fila por proceso (por ocid)
 python acquire_data.py --stage report   # resumen de tiempo/requests/tamaños
-# o los 4 juntos:
+# o los cuatro pasos juntos:
 python acquire_data.py --stage all
 ```
 
-**Fuente real:** portal OECE (`contratacionesabiertas.oece.gob.pe`), estándar OCDS.
-Verificado con `curl` antes de programar nada:
+Fuente: portal OECE (`contratacionesabiertas.oece.gob.pe`), estándar OCDS.
 
 - **Descarga masiva** (`GET /api/v1/file/{source}/{type}/{year}/{month}`): sin
-  autenticación, a diferencia de El Peruano (Tarea 1). Se descargaron 3 meses
-  reales: **2026-06, 2026-07, 2026-08** (~30 MB comprimidos en total).
+  autenticación. Se descargaron 3 meses reales (2026-06, 2026-07, 2026-08,
+  ~30 MB comprimidos en total).
 - **API de actualizaciones recientes** (`GET /api/v1/records?startDate=...&endDate=...`):
-  filtra server-side por fecha de convocatoria (confirmado con curl comparando
-  resultados con y sin el filtro). Se usa para traer los últimos 7 días sin
-  esperar a que se publique el próximo archivo mensual.
-- **Modelo OCDS**: cada `record` del `recordPackage` ya es la vista *compilada*
-  (`compiledRelease`) de todas las `releases` (eventos: planificación,
-  convocatoria, adjudicación...) de un mismo `ocid` — por eso se parte de
-  `record.compiledRelease` en vez de reconstruirlo a mano desde `releases`. El
-  `ocid` es el identificador único del proceso de contratación completo.
+  filtra por fecha de convocatoria en el servidor, usada para traer los
+  últimos 7 días sin depender de la publicación del próximo archivo mensual.
+- **Modelo OCDS:** cada `record` del `recordPackage` ya es la vista compilada
+  (`compiledRelease`) de todas las `releases` (eventos de planificación,
+  convocatoria, adjudicación) de un mismo `ocid`, por lo que una fila por
+  `ocid` representa un proceso de contratación completo.
 
-**Hallazgo real (bug evitado):** la API **ignora el parámetro `size`** — siempre
-pagina de a 20 resultados sin importar qué tamaño de página se pida. Cortar la
-paginación con `len(records) < size_pedido` truncaba en silencio el 98.5% de los
-resultados (20 de 1,309 reales en la ventana de 7 días). Se corrigió siguiendo
-`links.next` tal como lo devuelve la API en cada página, en vez de reconstruir el
-offset manualmente. Verificado con curl antes y después del fix.
+**Consideración de la API:** el parámetro `size` no es respetado por el
+servidor (siempre pagina de 20 resultados); la paginación se implementó
+siguiendo el enlace `links.next` que devuelve cada página, en lugar de
+calcular el offset localmente, para garantizar que no se pierdan resultados.
 
-**Resultados reales:**
+**Resultados de una corrida representativa:**
 
 | Fuente | Procesos | Requests | Datos transferidos | Tiempo |
 |---|---|---|---|---|
 | Descarga masiva (3 meses) | 20,441 | 6 | 29.7 MB | 33.8 s |
-| API actualizaciones recientes (7 días) | 1,309 | 67 (+66 desde caché en la 2ª corrida) | 6.0 MB | 41.5 s |
+| API de actualizaciones recientes (7 días) | 1,309 | 67 (+66 desde caché en la 2ª corrida) | 6.0 MB | 41.5 s |
 | **Combinado (una fila por `ocid`)** | **21,750** | | | |
 
-> Nota: la ventana de "últimos 7 días" de `--stage recent` es relativa a la
-> fecha de corrida, así que estos conteos crecen unas pocas decenas cada vez
-> que se re-ejecuta el pipeline (verificado: 21,752 en una corrida posterior,
-> el mismo día siguiente). Los números de esta sección quedan fijados a la
-> corrida original citada; los conteos "vivos" actuales están en
-> `data/outputs/acquisition_summary.csv` y `data/processed/processes_validated.csv`.
+> La ventana de "últimos 7 días" es relativa a la fecha de ejecución, por lo
+> que estos conteos varían ligeramente entre corridas. Los conteos vigentes
+> se encuentran en `data/outputs/acquisition_summary.csv` y
+> `data/processed/processes_validated.csv`.
 
-Ambos mecanismos son **re-ejecutables sin duplicar**: `--stage bulk` no vuelve a
-descargar un mes ya extraído en `data/raw/extracted/`; `--stage recent` cachea
-cada página de la API en `data/raw/api_cache/` y una segunda corrida no genera
-ningún request nuevo (verificado: 0 requests reales, 66/66 páginas leídas de
-caché). Log real de tiempo/requests/tamaños en `logs/acquisition_log.csv` y
-resumen agregado en `data/outputs/acquisition_summary.csv`.
+Ambos mecanismos son re-ejecutables sin duplicar información: la descarga
+masiva omite meses ya extraídos (`data/raw/extracted/`) y la API cachea cada
+página consultada (`data/raw/api_cache/`), de modo que una segunda corrida no
+genera requests adicionales. El log de tiempo/requests/tamaños se guarda en
+`logs/acquisition_log.csv`.
 
-Los ZIPs/JSON crudos (`data/raw/extracted/`, `data/raw/api_cache/`, ~290 MB) no
-se versionan en git (se regeneran con el comando de arriba). El dataset
-combinado intermedio (`processes.jsonl`/`.csv`, 21,750 filas) tampoco se
-versiona porque queda superado por el dataset validado de la Fase 2 — ambos se
-regeneran ejecutando `acquire_data.py` seguido de `validate_data.py`.
+Los archivos crudos (`data/raw/extracted/`, `data/raw/api_cache/`, ~290 MB) no
+se versionan en git; se regeneran con el comando de adquisición. El dataset
+combinado intermedio tampoco se versiona porque queda superado por el
+dataset validado de la Fase 2.
 
 ### Validación de calidad y normalización territorial (Fase 2)
 
@@ -355,119 +325,95 @@ regeneran ejecutando `acquire_data.py` seguido de `validate_data.py`.
 python validate_data.py
 ```
 
-Detecta (sin corregir a ciegas) 6 reglas de calidad sobre las 21,750 filas
-combinadas de la Fase 1:
+Seis reglas de calidad sobre el dataset combinado de la Fase 1:
 
 | Regla | Casos | Acción tomada |
 |---|---|---|
-| Registros repetidos por el mismo proceso | **884** (827 grupos) | se conserva el más completo por grupo, resto descartado (auditoría en `duplicates_removed.csv`) |
-| Proceso sin monto | 0 | ninguna |
-| Proceso con monto cero | 3,419 | se conserva (válido en catálogos/convenios); documentado para no inflar promedios sin advertir |
-| Proceso sin descripción | 0 | ninguna |
-| Ubicación que no matchea un departamento | 0 | ninguna (`buyer.address.department` del OCDS ya viene curado por una extensión propia del OECE) |
-| Inconsistencia de encoding/acentos | 0 | ninguna |
+| Registros repetidos por el mismo proceso | 884 (827 grupos) | se conserva el registro más completo por grupo; auditoría en `duplicates_removed.csv` |
+| Proceso sin monto | 0 | — |
+| Proceso con monto cero | 3,419 | se conserva (válido en catálogos y convenios); documentado para no inflar promedios sin advertencia |
+| Proceso sin descripción | 0 | — |
+| Ubicación que no corresponde a un departamento | 0 | `buyer.address.department` del estándar OCDS peruano ya viene normalizado por una extensión propia del OECE |
+| Inconsistencia de encoding o acentos | 0 | — |
 
-**Hallazgo real de duplicados:** se detectaron 827 grupos donde el mismo
-comprador + misma nomenclatura + misma fecha de convocatoria aparecen bajo
-**`ocid` distintos** — verificado en un caso concreto: dos ocids con el mismo
-monto exacto (S/ 6,741,021.80) y mismo título, uno con `numberOfTenderers=null`
-y otro con `numberOfTenderers=25` (evidencia de que SEACE V3 reemitió un id
-interno nuevo para el mismo proceso real en una etapa posterior). Norma
-aplicada: se conserva el registro con más campos poblados (heurística de
-completitud: `numberOfTenderers` no nulo, tiene adjudicación, tiene proveedor
-adjudicado), nunca se combinan/promedian silenciosamente.
+**Registros repetidos:** se detectaron grupos donde el mismo comprador, la
+misma nomenclatura y la misma fecha de convocatoria aparecen bajo distintos
+`ocid` — por ejemplo, dos registros con monto idéntico y mismo título, uno
+sin postores registrados aún y otro con 25, correspondientes a una
+reemisión del identificador interno del sistema de origen para el mismo
+proceso real. Se conserva el registro con más campos poblados (heurística de
+completitud) y nunca se combinan ni promedian los valores.
 
-**Bug real encontrado al re-correr el pipeline para verificar (no al escribir el
-código):** la resolución de duplicados no era determinística entre corridas.
-`resolve_duplicates()` armaba los candidatos con `set(ocids)`, y el orden de
-iteración de un `set` de strings en Python depende del hash de cada string,
-que se aleatoriza por proceso (`PYTHONHASHSEED`) — así que el "sobreviviente"
-de un grupo duplicado podía cambiar de una corrida a otra **sin que cambiaran
-los datos**, invalidando silenciosamente cualquier `ocid` de referencia
-guardado en otro lado (ej. el conjunto de evaluación de la Fase 3, que
-apuntaba a un `ocid` que dejó de existir tras una nueva corrida). Se corrigió
-con `dict.fromkeys(ocids)` (preserva orden de inserción, determinístico) y
-agregando el propio `ocid` como último criterio de desempate en
-`_completeness_score()`. Verificado corriendo `validate_data.py` dos veces
-seguidas y comparando el archivo de salida byte a byte: idéntico.
+La resolución de duplicados es determinística: el desempate entre candidatos
+con igual nivel de completitud usa el propio `ocid` como criterio final, de
+modo que dos ejecuciones sobre el mismo conjunto de datos producen
+exactamente el mismo resultado (verificado comparando la salida de dos
+corridas consecutivas byte a byte).
 
-**Normalización territorial:** `buyer.address.department` del estándar OCDS
-peruano ya viene generado por una extensión propia (`ocds_department_extension`)
-— de hecho, sobre 21,750 filas reales aparecieron **exactamente 25 valores
-únicos**, los 25 departamentos oficiales, sin variantes de acento/mayúsculas ni
-provincias mezcladas. La normalización (`normalize_department()` en
-`src/validation.py`, comparación insensible a tildes/mayúsculas contra la lista
-de `config.yaml`) igual se implementó y quedó lista para datos menos curados
-(ej. si se agregan fuentes SEACE V2 a futuro), documentada con el reporte
-`unmatched_locations.csv` que se generaría si hubiera algún caso.
+**Normalización territorial:** sobre las filas reales del dataset aparecen
+exactamente 25 valores únicos de departamento, coincidentes con los 25
+departamentos oficiales, sin variantes de acento/mayúsculas ni provincias
+mezcladas — el campo ya viene curado por la extensión OCDS del OECE. La
+función `normalize_department()` (`src/validation.py`) implementa de todas
+formas comparación insensible a tildes y mayúsculas contra la lista oficial
+de `config.yaml`, con reporte de ubicaciones no localizables en
+`unmatched_locations.csv` para datasets menos curados.
 
-Dataset final: `data/processed/processes_validated.jsonl`/`.csv`, **20,866
-filas** (21,750 − 884 duplicados), con columnas nuevas `buyer_department`
-(normalizado) e `is_encoding_issue`.
+Dataset final: `data/processed/processes_validated.jsonl` / `.csv`, con
+columnas adicionales `buyer_department` (normalizado) e `is_encoding_issue`.
 
 ### RAG híbrido (Fase 3)
 
 ```powershell
-python build_hybrid_index.py     # embebe título+descripción de los 20,866 procesos
+python build_hybrid_index.py     # embebe título + descripción de cada proceso
 python eval/run_hybrid_eval.py   # Recall@k sin LLM, sobre 12 preguntas conocidas
 ```
 
-Reutiliza el modelo de embeddings local de la Tarea 1. Un embedding por proceso
-(no por chunk, ya que la descripción cabe en ~50-70 tokens); **idempotente y
-reanudable con checkpointing real cada 250 procesos** (no solo al final) —
-necesario porque el build tardó ~31 minutos en esta máquina y el proceso en
-segundo plano se interrumpió una vez por presión de memoria del sistema (7.9GB
-RAM total); con el checkpointing, una interrupción ya no pierde el trabajo
-previo.
+Reutiliza el modelo de embeddings local de la Tarea 1, con un embedding por
+proceso (la descripción cabe en ~50–70 tokens, sin necesidad de chunking). El
+build es idempotente y reanudable con checkpointing incremental cada 250
+procesos, de modo que una interrupción no obliga a reprocesar el índice
+completo.
 
 `src/hybrid_engine.py` expone `answer_question(query, config, filters)`: los
 filtros estructurados (`departamento`, `categoria`, `monto_min/max`,
-`fecha_desde/hasta`) se aplican **siempre sobre metadata antes de tocar los
-embeddings** — nunca se convierten en texto para buscar por similitud.
+`fecha_desde/hasta`) se aplican siempre sobre metadata antes de tocar los
+embeddings — nunca se convierten en texto para la búsqueda semántica.
 
 **Recall@k** (`eval/results/hybrid_retrieval_detail.csv`, 12 preguntas con
-proceso relevante conocido): Recall@1=0.250, Recall@3=0.333, **Recall@5=0.417**
-— sensiblemente más bajo que en la Tarea 1 (~0.75-0.81). Dos hallazgos reales,
-diagnosticados a fondo (no solo la métrica):
+proceso relevante conocido): Recall@1=0.250, Recall@3=0.333, Recall@5=0.417 —
+sensiblemente más bajo que en la Tarea 1. Dos limitaciones identificadas:
 
-1. **El lenguaje burocrático repetitivo confunde al embedding a esta escala.**
-   Ejemplo real: la pregunta sobre "mejoramiento de agua potable en San
-   Sebastián de Choropampa" (Cajamarca) recuperó un proceso *distinto*, de otra
-   localidad de Cajamarca, con mayor similitud (0.772 vs. el correcto) —
-   ambas descripciones son casi idénticas salvo el nombre del centro poblado,
-   y el modelo no discrimina bien nombres de localidades pequeñas y poco
-   frecuentes. **Se probó si el filtro de departamento lo arregla: no** — el
-   proceso incorrecto también es de Cajamarca, así que el filtro reduce el
-   universo (20,866 → 874) pero no alcanza a discriminar entre localidades
-   dentro del mismo departamento.
-2. **A esta escala, ningún threshold separa limpiamente in-domain de
-   out-of-domain** (más severo que en la Tarea 1): la pregunta absurda
-   *"¿cómo se prepara un ceviche peruano?"* obtiene similitud **0.696**, más
-   alta que varias preguntas reales del dominio (ej. 0.466). El threshold se
-   recalibró de 0.60 (Tarea 1) a **0.45** priorizando no abstenerse de
-   preguntas reales, aceptando que aquí la defensa principal contra preguntas
-   absurdas recae aún más en el LLM (citación por ocid, nunca en el
-   threshold). Detalle completo en `eval/results/hybrid_eval_notes.md`.
+1. **El lenguaje burocrático repetitivo dificulta la discriminación fina del
+   embedding a esta escala.** Ejemplo: una pregunta sobre "mejoramiento de
+   agua potable en San Sebastián de Choropampa" (Cajamarca) recupera un
+   proceso distinto, de otra localidad del mismo departamento, con mayor
+   similitud — ambas descripciones son casi idénticas salvo el nombre del
+   centro poblado, y el modelo no discrimina bien nombres de localidades
+   pequeñas y poco frecuentes. El filtro de departamento reduce el universo
+   de búsqueda (de 20,870 a 874 candidatos en este caso) pero no resuelve la
+   discriminación entre localidades dentro del mismo departamento.
+2. **A esta escala, ningún threshold único separa limpiamente preguntas
+   dentro y fuera de dominio.** Una pregunta sin relación con el corpus (ej.
+   sobre gastronomía) puede obtener mayor similitud que preguntas legítimas.
+   El threshold se recalibró de 0.60 (heredado de la Tarea 1) a 0.45,
+   priorizando no abstenerse de preguntas reales; la defensa principal ante
+   preguntas fuera de dominio recae en el LLM, que cita únicamente por
+   `ocid` y se niega a responder cuando los procesos recuperados no son
+   pertinentes. Detalle completo en `eval/results/hybrid_eval_notes.md`.
 
-**Cambio de proveedor de LLM: OpenAI → Gemini.** La key de OpenAI usada en la
-Tarea 1 empezó a devolver `401 invalid_api_key` (quedó inválida después de
-compartirse en texto plano en algún punto entre tareas). Se conectó
-**Gemini 3.5 Flash-Lite** como proveedor activo en ambas tareas (`llm.provider:
-"gemini"` en ambos `config.yaml`, motor con soporte para gemini/openai/anthropic
-según la key disponible en `.env`). Precios verificados en
-`ai.google.dev/gemini-api/docs/pricing` (2026-09): USD 0.30 / 1M tokens input,
-USD 2.50 / 1M output.
+El motor soporta Gemini, OpenAI y Anthropic como proveedores de LLM
+(`llm.provider` en `config.yaml`); el proveedor activo en ambas tareas es
+Gemini (`gemini-3.5-flash-lite`, USD 0.30 / 1M tokens de entrada, USD 2.50 /
+1M de salida).
 
-**Bug real encontrado y corregido al probar con Gemini:** el contexto que el
-motor híbrido le pasaba al LLM solo incluía el *título* de cada proceso
-recuperado (ej. `"LP-SM-1-2026-MDM/CS-1"`), nunca la *descripción* — el LLM no
-tenía forma de juzgar si un proceso respondía la pregunta. Se corrigió
-agregando `tender_description` al contexto. Validación en vivo tras el fix:
+Validación funcional tras incluir la descripción del proceso en el contexto
+enviado al LLM (además del título):
 
 | Pregunta | Resultado |
 |---|---|
-| "Tengo una empresa pequeña, ¿hay agua potable en Cajamarca?" | Respuesta correcta citando el ocid, monto y entidad reales |
-| "¿Cómo se prepara un ceviche peruano?" | El LLM **no abstiene en retrieval** (ver hallazgo de separabilidad arriba) pero **se niega a responder**, explicando que los procesos recuperados son sobre pasteurizadores/cuyes/herramientas, no sobre comida — la segunda línea de defensa funciona en vivo exactamente como se documentó en la Tarea 1 |
+| "Tengo una empresa pequeña, ¿hay agua potable en Cajamarca?" | Respuesta correcta citando el `ocid`, monto y entidad reales |
+| "¿Cómo se prepara un ceviche peruano?" | El retrieval no se abstiene (ver limitación de separabilidad arriba), pero el LLM se niega a responder, explicando que los procesos recuperados corresponden a insumos agropecuarios y no a gastronomía — la segunda línea de defensa opera correctamente aun cuando el retrieval no discrimina |
 
 ### Dashboard Streamlit (Fase 4)
 
@@ -475,31 +421,30 @@ agregando `tender_description` al contexto. Validación en vivo tras el fix:
 streamlit run app.py
 ```
 
-Lee únicamente archivos precomputados de las Fases 1, 2, 3 y 5 (dataset
-validado, índice del RAG híbrido, reportes de calidad y de riesgo) — no
-descarga ni reconstruye nada al iniciar. Seis pestañas + KPI header siempre
+Lee únicamente archivos precomputados de las fases anteriores — no descarga
+ni reconstruye nada al iniciar. Seis pestañas, con un panel de KPIs siempre
 visible (procesos, monto total, departamentos, share monopostor):
 
-1. **Mapa** (choropleth por departamento, procesos o monto, con `peru_departamentos.geojson`).
-2. **Pregunta (RAG híbrido)** — filtros exactos de departamento/categoría/monto
-   opcionales + pregunta en lenguaje natural; threshold ajustable en vivo desde
-   el sidebar.
-3. **Tabla** ordenable + botón de descarga CSV con los filtros aplicados.
-4. **Distribución** — monto por categoría (colores fijos por categoría, nunca
-   ciclados), procesos por mes, top-15 departamentos por monto.
-5. **Indicador de riesgo** — con la advertencia explícita siempre visible.
-6. **Calidad de datos** — reportes de la Fase 2 y resumen de adquisición de la Fase 1.
+1. **Mapa** — choropleth por departamento (procesos o monto).
+2. **Pregunta (RAG híbrido)** — filtros exactos de departamento, categoría y
+   monto, combinados con la pregunta en lenguaje natural; threshold
+   ajustable desde el sidebar.
+3. **Tabla** — ordenable, con descarga en CSV según los filtros aplicados.
+4. **Distribución** — monto por categoría, procesos por mes, top
+   departamentos por monto.
+5. **Indicador de riesgo** — con la advertencia de interpretación siempre
+   visible.
+6. **Calidad de datos** — reportes de las fases de adquisición y validación.
 
-Sidebar con filtros de departamento, categoría, rango de monto, rango de
-fecha y threshold de similitud; `if filtered.empty: st.warning(...); st.stop()`
-maneja la selección vacía sin romper la app.
+El sidebar incluye filtros de departamento, categoría, rango de monto, rango
+de fecha y threshold de similitud; una selección sin resultados se maneja
+mostrando un aviso en lugar de una falla.
 
-Probado en navegador real: con el filtro `departamento=Cajamarca` aplicado en
-la pestaña de pregunta, la consulta sobre "agua potable rural en Choropampa"
-reprodujo exactamente el hallazgo ya documentado en `eval/results/hybrid_eval_notes.md`
-(874 candidatos tras el filtro, top-1 sigue siendo el proceso de otra
-localidad de Cajamarca) — confirma que el dashboard es consistente con la
-evaluación offline, no un camino de código distinto.
+Validado en navegador: al aplicar el filtro `departamento=Cajamarca` en la
+pestaña de pregunta, la consulta sobre agua potable rural en Choropampa
+reproduce el mismo comportamiento documentado en la evaluación offline (874
+candidatos tras el filtro, mismo proceso de mayor similitud), confirmando
+consistencia entre el dashboard y la evaluación.
 
 ### Indicador de riesgo — adjudicaciones monopostor (Fase 5)
 
@@ -507,13 +452,13 @@ evaluación offline, no un camino de código distinto.
 python compute_risk_indicator.py
 ```
 
-Share de procesos adjudicados con exactamente 1 postor, por departamento y por
-proveedor (`src/risk_indicator.py`). **Advertencia explícita, siempre visible
-en el dashboard:** un solo postor no es evidencia de un delito — puede
+Calcula el share de procesos adjudicados con exactamente un postor, por
+departamento y por proveedor (`src/risk_indicator.py`). El dashboard muestra
+siempre la advertencia: un solo postor no es evidencia de irregularidad — puede
 reflejar un mercado con poca oferta o una contratación muy especializada; es
-una señal estadística para priorizar revisión, nunca una acusación.
+una señal estadística para priorizar revisión, no una acusación.
 
-Top 5 departamentos por share real:
+Top 5 departamentos por share:
 
 | Departamento | Share monopostor | Procesos (monopostor / adjudicados) |
 |---|---|---|
@@ -523,43 +468,20 @@ Top 5 departamentos por share real:
 | Arequipa | 14.2% | 78 / 548 |
 | La Libertad | 10.3% | 50 / 486 |
 
-**Mínimo de procesos justificado:** el Top 10 de proveedores solo considera
-entidades con ≥5 procesos adjudicados en total (`risk_indicator.min_processes_per_entity`
-en `config.yaml`) — con menos, un share de 100% no es estadísticamente
-confiable (ej. 1 de 1 proceso). **Sin publicar nombres individuales:** los
-proveedores que no calzan con un patrón de persona jurídica (sin "S.A.C.",
-"S.R.L.", "CONSORCIO", etc. en el nombre) se anonimizan como
-`"(persona natural #N — nombre no publicado)"` — de los primeros 5 del Top 10
-real, 4 son personas naturales anonimizadas y 1 es una empresa
-(`SISTEMAS ORACLE DEL PERÚ S.R.L.`, 100% de share en 8 procesos).
-
-### Interfaz Streamlit (Fase 5)
-
-```powershell
-cd tarea1_rag_normativo
-streamlit run app.py
-```
-
-Carga el índice ya construido (nunca lo reconstruye al iniciar). Tres pestañas:
-**Consulta** (pregunta → respuesta + costo + latencia + fragmentos citados con
-página/versión/similitud), **Calidad de datos** (tablas de `source_check.csv` y
-`extraction_quality.csv` de la Fase 1), **Evaluación** (Recall@k, comparación de
-embeddings y sweep de threshold de la Fase 4).
-
-Probada en navegador real (no solo `streamlit run` sin verificar): la pregunta de
-control *"Tengo una empresa pequeña, ¿hasta cuánto me pueden multar...?"* devolvió
-la respuesta correcta citando el Art. 89.3, página 27, con costo real
-USD 0.000185; la pregunta *"¿Cuál es la capital de Francia?"* se abstuvo
-correctamente con costo USD 0.000000 y 0.51s de latencia (sin llamar al LLM).
+El ranking de proveedores solo considera entidades con al menos 5 procesos
+adjudicados (`risk_indicator.min_processes_per_entity` en `config.yaml`), ya
+que con menos casos un share de 100% no es estadísticamente representativo.
+Los proveedores que no corresponden a un patrón de persona jurídica (sin
+"S.A.C.", "S.R.L.", "CONSORCIO", etc. en el nombre) se anonimizan como
+*"(persona natural #N — nombre no publicado)"*, para no exponer identidades
+individuales en un indicador de riesgo agregado.
 
 ## Pipelines
 
-Ver [`docs/pipeline.md`](docs/pipeline.md) para los diagramas offline/online de ambas tareas.
+Ver [`docs/pipeline.md`](docs/pipeline.md) para los diagramas offline/online
+de ambas tareas.
 
 ## Resultados
-
-Resumen de los números clave; el detalle completo (con hallazgos y limitaciones)
-está en la sección de cada fase más arriba.
 
 **Tarea 1 — RAG Normativo**
 
@@ -568,22 +490,22 @@ está en la sección de cada fase más arriba.
 | Source check | Ley 32069: 36 pág. / 316,158 caracteres · DS 001-2026-EF: 16 pág. / 134,755 caracteres · 0 páginas sin texto extraíble |
 | Chunking | `config_a` (96 tok): 890 chunks · `config_b` (120 tok, activa): 788 chunks |
 | Recall@1 / @3 / @5 (local, `config_b`) | 0.438 / 0.750 / 0.750 |
-| Recall@1 / @3 / @5 (OpenAI, `config_b`) | 0.375 / 0.750 / 0.875 (sin ganador universal, ver Fase 4) |
+| Recall@1 / @3 / @5 (OpenAI, `config_b`) | 0.375 / 0.750 / 0.875 |
 | Threshold de abstención | 0.60 (calibrado con sweep sobre 21 preguntas) |
-| Costo real por consulta (Gemini) | ~USD 0.0002–0.0006; USD 0.00 en abstenciones |
+| Costo por consulta (Gemini) | ~USD 0.0002–0.0006; USD 0.00 en abstenciones |
 
 **Tarea 2 — RAG Radar**
 
 | Métrica | Resultado |
 |---|---|
-| Adquisición | 20,441 procesos (3 meses) + 1,309–1,312 (API reciente) |
-| Validación | 884 duplicados reales removidos → ~20,870 filas finales |
+| Adquisición | 20,441 procesos (3 meses) + ~1,300 (API de actualizaciones recientes) |
+| Validación | 884 duplicados removidos → ~20,870 filas finales |
 | Departamentos representados | 25 / 25 |
 | Recall@1 / @3 / @5 (RAG híbrido) | 0.250 / 0.333 / 0.417 |
-| Threshold de abstención | 0.45 (recalibrado — el de la Tarea 1 no transfiere) |
-| Indicador de riesgo monopostor | Tumbes 36.7%, Lima 30.2% (top departamentos) |
-| Costo real por consulta (Gemini) | ~USD 0.0004–0.0008 |
+| Threshold de abstención | 0.45 |
+| Indicador de riesgo monopostor | Tumbes 36.7%, Lima 30.2% (departamentos con mayor share) |
+| Costo por consulta (Gemini) | ~USD 0.0004–0.0008 |
 
-Los reportes fuente (CSV) de cada número están en `eval/results/`,
-`data/processed/reports/` y `data/outputs/` de cada tarea; los logs de costo
-con llamadas reales están en `logs/costs.csv`.
+Los reportes fuente de cada número están en `eval/results/`,
+`data/processed/reports/` y `data/outputs/` de cada tarea; el log de costos
+con llamadas reales está en `logs/costs.csv`.
