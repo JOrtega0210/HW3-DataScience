@@ -587,18 +587,3 @@ está en la sección de cada fase más arriba.
 Los reportes fuente (CSV) de cada número están en `eval/results/`,
 `data/processed/reports/` y `data/outputs/` de cada tarea; los logs de costo
 con llamadas reales están en `logs/costs.csv`.
-
-## Checklist de avance
-
-- [x] Estructura del repositorio y configuración base
-- [x] Tarea 1 — Fase 1: fuentes, extracción y limpieza
-- [x] Tarea 1 — Fase 2: chunking, embeddings e índice
-- [x] Tarea 1 — Fase 3: motor RAG (threshold, versiones, scope, LLM conectado: Gemini)
-- [x] Tarea 1 — Fase 4: evaluación (Recall@k, threshold, comparación local vs. OpenAI completa)
-- [x] Tarea 1 — Fase 5: interfaz Streamlit
-- [x] Tarea 2 — Fase 1: adquisición de datos
-- [x] Tarea 2 — Fase 2: validación y normalización territorial
-- [x] Tarea 2 — Fase 3: RAG híbrido y su evaluación
-- [x] Tarea 2 — Fase 4: dashboard Streamlit
-- [x] Tarea 2 — Fase 5: indicador de riesgo monopostor
-- [ ] Video de presentación
